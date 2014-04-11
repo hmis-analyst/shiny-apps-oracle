@@ -4,6 +4,10 @@ if("ggplot2" %in% installed.packages()==FALSE) install.packages("ggplot2",repos=
 if("reshape2" %in% installed.packages()==FALSE) install.packages("reshape2",repos="http://cran.rstudio.com/")
 if("stringr" %in% installed.packages()==FALSE) install.packages("stringr",repos="http://cran.rstudio.com/")
 
+
+# install.packages("devtools",repos="http://cran.rstudio.com/")
+# devtools::install_github("shiny-incubator", "rstudio")
+
 # Load shiny, RODBC, and ggplot2 packages
 library(shinyIncubator)
 library(RJDBC)
