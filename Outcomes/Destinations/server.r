@@ -1,8 +1,8 @@
-.libPaths("~/R/win-library/3.0")
-if("RJDBC" %in% installed.packages()==FALSE) install.packages("RJDBC",repos="http://cran.rstudio.com/")
-if("ggplot2" %in% installed.packages()==FALSE) install.packages("ggplot2",repos="http://cran.rstudio.com/")
-if("reshape2" %in% installed.packages()==FALSE) install.packages("reshape2",repos="http://cran.rstudio.com/")
-if("stringr" %in% installed.packages()==FALSE) install.packages("stringr",repos="http://cran.rstudio.com/")
+# .libPaths("~/R/win-library/3.0")
+# install.packages("RJDBC",repos="http://cran.rstudio.com/")
+# install.packages("ggplot2",repos="http://cran.rstudio.com/")
+# install.packages("reshape2",repos="http://cran.rstudio.com/")
+# install.packages("stringr",repos="http://cran.rstudio.com/")
 
 # Load shiny, RODBC, and ggplot2 packages
 library(shinyIncubator)
