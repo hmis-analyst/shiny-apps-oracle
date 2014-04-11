@@ -24,7 +24,7 @@ Installation Notes for Contributors
 -------------------------------------------
 - The HMIS Data Analyst open-source project requires a local installation of R version >= 3.0.0.
 - Applications will have varying R package dependencies (see source code). All dependencies must be installed before applications are sourced.
-- This project's applications currently require that the JDBC driver <a href=http://www.oracle.com/technetwork/database/enterprise-edition/jdbc-112010-090769.html>ojdbc6.jar</a> be located in the following Windows directory: *{root}\Users\{username}\Documents\HMIS Data Analyst\lib\*
+- This project's applications currently require that the JDBC driver <a href=http://www.oracle.com/technetwork/database/enterprise-edition/jdbc-112010-090769.html>ojdbc6.jar</a> be located in the following Windows directory: *[root]\Users\[username]\Documents\HMIS Data Analyst\lib\*
 
 MySQL versus Oracle
 --------------------
