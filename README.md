@@ -8,16 +8,16 @@ HMIS Data Analyst (Oracle)
 
 Description
 ------------
-- HMIS Data Analyst is an open-source library of applications designed to provide an intuitive platform for analysis of Homeless Management Information System (<a href=http://en.wikipedia.org/wiki/Homeless_Management_Information_Systems>HMIS</a>) data. The ultimate goal of this project is to help end homelessness by creating transparency, improving knowledge, and facilitating research related to America's homeless service 
-provider systems.
-- These applications are written using the open-source <a href=http://cran.us.r-project.org/>R software environment</a> (version >= 3.0.0). In particular, they utilize the <a href=http://shiny.rstudio.com/>Shiny</a> R package (GitHub <a href=https://github.com/rstudio/shiny>here</a>). The technical goal is to present a simple user interface that translates R statistical analyses into useful information that ordinary people can easily digest.
+- HMIS Data Analyst is an open-source library of applications designed to provide an intuitive platform for analysis of Homeless Management Information System (<a href=http://en.wikipedia.org/wiki/Homeless_Management_Information_Systems>HMIS</a>) data. The ultimate goal of this project is to help end homelessness by creating transparency, improving knowledge, and facilitating research related to America's homeless service provider systems.
 
 General Usage Notes
 --------------------
+- For now, this project only has access to administrative data collected by homeless service providers in the state of Georgia. Georgia is home to one of the U.S.A.'s only statewide implementations of HMIS (most are smaller).
+- These Data Analyst applications are written using the open-source <a href=http://cran.us.r-project.org/>R software environment</a> (version >= 3.0.0). In particular, they utilize the <a href=http://shiny.rstudio.com/>Shiny</a> R package (GitHub <a href=https://github.com/rstudio/shiny>here</a>). The technical goal is to present a simple user interface that translates R statistical analyses into useful information that ordinary people can easily digest.
 - This open-source version of HMIS Data Analyst currently requires a keyfile to connect to the RDBMS. The keyfile is not public and must be stored locally on the developer's machine. Please contact one of the administrators for a copy.
 - HMIS Data Analyst applications are browser-based. They will not work properly on Internet Explorer. Chrome is recommended.
 - Each new version of a Data Analyst application is moved onto a private server and later published to the web. 
-- The primary languages used in writing these applications are R and SQL. To a small extent, they also utilize HTML and JavaScript. Expertise in JavaScript would have the potential to vastly improve the functionality and appearance of Data Analyst.
+- The primary languages used in writing these applications are R and SQL. To a small extent, they also utilize HTML and JavaScript. A contributor with a working knowledge of JavaScript would have the potential to vastly improve the functionality and appearance of Data Analyst.
 - The JDBC API is used to communicate with the Oracle RDBMS.
 
 Installation Notes for Contributors
