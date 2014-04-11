@@ -17,7 +17,7 @@ General Usage Notes
 - This open-source version of HMIS Data Analyst currently requires a keyfile to connect to the RDBMS. The keyfile is not public and must be stored locally on the contributor's machine. Please contact one of the administrators for a copy.
 - Data Analyst applications are browser-based--but they will not work properly on Internet Explorer. Chrome is recommended.
 - The primary languages used in writing these applications are R and SQL. To a small extent, they also utilize HTML and JavaScript. A contributor with a working knowledge of JavaScript would have the potential to vastly improve the functionality and appearance of Data Analyst.
-- Every time a new version of Data Analyst is completed, the administrators will copy it onto a private server and publish it to the web. 
+- Every time a new version of Data Analyst is completed, the administrators will copy it onto a private Linux server and publish it to the web. 
 
 Installation Notes for Contributors
 -------------------------------------------
