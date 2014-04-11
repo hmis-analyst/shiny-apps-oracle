@@ -4,7 +4,8 @@
 # install.packages("RJDBC",repos="http://cran.rstudio.com/")
 
 # Load shiny and RODBC packages
-library(shinyIncubator)
+# library(shinyIncubator)
+library(shiny)
 library(RJDBC)
 
 
@@ -12,7 +13,7 @@ library(RJDBC)
 source("~/HMIS Data Analyst/lib/key.r")
 
 shinyUI(basicPage(
-  progressInit(),
+  # progressInit(),
   # Call a separate HTML file to create bars, headers, layouts
   includeHTML("page.html"),
   fluidRow(
