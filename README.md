@@ -8,7 +8,7 @@ HMIS Data Analyst (Oracle)
 
 Description
 ------------
-- HMIS Data Analyst is an open-source library of applications designed to provide an intuitive platform for analysis of Homeless Management Information System (<a href=http://en.wikipedia.org/wiki/Homeless_Management_Information_Systems>HMIS</a>) data. The ultimate goal of this project is to help end homelessness by creating transparency, improving knowledge, and facilitating research related to America's homeless service provider systems.
+- HMIS Data Analyst is an open-source library of applications designed to provide an intuitive platform for analysis of Homeless Management Information System (<a href=http://en.wikipedia.org/wiki/Homeless_Management_Information_Systems>HMIS</a>) data. The ultimate goal of this project is to help end homelessness by creating transparency, advancing knowledge, and facilitating research related to America's homeless service provider systems.
 
 General Usage Notes
 --------------------
