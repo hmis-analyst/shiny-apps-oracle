@@ -27,4 +27,4 @@ Installation Notes for Contributors
 
 MySQL versus Oracle
 --------------------
-- The database administrators are in the process of transitioning to a new open-source version of HMIS (OpenHMIS). At the moment, the Data Analyst project is being developed for the existing Oracle RDBMS. Eventually, the entire project will be converted to communicate with a MySQL RDBMS. To enable current development and ease this future conversion, two duplicate repositories have been created on GitHub.
+- The database administrators are in the process of transitioning to a new open-source version of HMIS (OpenHMIS). At the moment, the Data Analyst project is being developed for the existing Oracle RDBMS. Eventually, the entire project will be converted to communicate with a MySQL RDBMS. To enable current development and ease this future conversion, two duplicate repositories have been created on the hmis-analyst GitHub.
