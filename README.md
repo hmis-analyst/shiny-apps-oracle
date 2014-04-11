@@ -16,7 +16,7 @@ General Usage Notes
 - For now, this project's primary source of data comes from administrative data collected by homeless service providers in the state of Georgia. Georgia is home to one of the U.S.A.'s only statewide implementations of HMIS (most are smaller).
 - The <a href=http://www.oracle.com/technetwork/database/enterprise-edition/jdbc-112010-090769.html>JDBC API</a> is used to communicate with the Oracle RDBMS that houses Georgia's HMIS.
 - This open-source version of HMIS Data Analyst currently requires a keyfile to connect to the RDBMS. The keyfile is not public and must be stored locally on the developer's machine. Please contact one of the administrators for a copy.
-- Data Analyst applications are browser-based. They will not work properly on Internet Explorer. Chrome is recommended.
+- Data Analyst applications are browser-based--but they will not work properly on Internet Explorer. Chrome is recommended.
 - Each new version of a Data Analyst application is moved onto a private server and later published to the web. 
 - The primary languages used in writing these applications are R and SQL. To a small extent, they also utilize HTML and JavaScript. A contributor with a working knowledge of JavaScript would have the potential to vastly improve the functionality and appearance of Data Analyst.
 
