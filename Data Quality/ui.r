@@ -36,7 +36,7 @@ shinyUI(basicPage(
             dateRangeInput("daterange","Date range", format='mm/dd/yyyy',start="2013-07-01",max=Sys.Date()),
             br(),
             # Display radio buttons with 3 defined report levels
-            radioButtons("reportLevel", "Report level",list("Group","Agency","Program")),
+            radioButtons("reportLevel", "Report level",list("Group","Agency","Program"),selected="Program"),
             br(),
             # Display "Group Name" select list when user chooses "Group" report level
             conditionalPanel(
@@ -49,7 +49,7 @@ shinyUI(basicPage(
                   FROM Community_Group_Information
                   ORDER BY Group_Name"
                 )[[1]]
-              ,selected="GA - DCA ESG Grantees (2013-2014)")))
+              )))
             ),
             # Display "Agency Name" select list when user chooses "Agency" or "Program" report levels
             conditionalPanel(
@@ -103,4 +103,3 @@ shinyUI(basicPage(
     )
   )
 ))
-

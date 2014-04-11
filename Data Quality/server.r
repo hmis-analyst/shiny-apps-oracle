@@ -182,64 +182,6 @@ shinyServer(function(input, output, session) {
     programTypesSelect <- paste(programTypesSelect,"')",sep="")
   })
   
-  
-  #################################
-  # MAIN PANEL UI
-  #################################
-  
-  output$mainPanel <- renderUI({
-    # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
-    input$update
-    
-    if (input$printable==TRUE) {
-      #Reactivity is invalidated unless update button is pressed
-      isolate(mainPanel(
-        h2("DATA QUALITY REPORT",align="center"), br(),
-        (if(input$reportLevel=="Group") 
-        {h3(input$groupSelect,align="center")}),
-        (if(input$reportLevel %in% c("Agency","Program")) 
-        {h3(input$agencySelect,align="center")}),
-        (if(input$reportLevel=="Program") 
-        {h3(input$programSelect,align="center")}),
-        br(),
-        h4(paste("Report Period:  ",dateMod(beginSelect()),"-",dateMod(endSelect())),align="center"),
-        h3(class="break","Summary",align="center"),
-        dataTableOutput("dqTable_short"),
-        h3(class="break","Data Elements",align="center"),
-        dataTableOutput("dqTable"),
-        h3(class="break",textOutput("text1"),align="center"),
-        if(input$reportLevel=="Program") {dataTableOutput("Violations")}
-        else {dataTableOutput("progsTable")},
-        br(), br(),
-        div(align="center",plotOutput("plot"))
-      ))
-    }
-    else {
-      div(
-        h4("Main Panel",align="center"),
-        tabsetPanel(
-          tabPanel("Summary",
-                   div(downloadButton("downloadSummary","Download Summary"),align="right"),
-                   dataTableOutput("dqTable_short")
-          ),
-          tabPanel("Data Elements",
-                   div(downloadButton("downloadDQ","Download Elements"),align="right"),
-                   dataTableOutput("dqTable")
-          ),
-          tabPanel(textOutput("text1"),
-                   if(input$reportLevel=="Program") 
-                   {div(div(downloadButton("downloadClients","Download Clients"),align="right"),dataTableOutput("Violations"))}
-                   else 
-                   {div(div(downloadButton("downloadProgs","Download Programs"),align="right"),br(),dataTableOutput("progsTable"))}
-          ),
-          tabPanel("Plot",
-                   plotOutput("plot")
-          )
-        )
-      )
-    } 
-  })
-  
 
   #################################
   # MAIN QUERY
@@ -860,6 +802,64 @@ shinyServer(function(input, output, session) {
     input$update
     #Reactivity is invalidated unless update button is pressed
     isolate(ifelse(input$reportLevel=="Program",return(elementsPlot()),return(progsPlot())))
+  })
+  
+  
+  #################################
+  # MAIN PANEL UI
+  #################################
+  
+  output$mainPanel <- renderUI({
+    # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
+    input$update
+    
+    if (input$printable==TRUE) {
+      #Reactivity is invalidated unless update button is pressed
+      isolate(mainPanel(
+        h2("DATA QUALITY REPORT",align="center"), br(),
+        (if(input$reportLevel=="Group") 
+        {h3(input$groupSelect,align="center")}),
+        (if(input$reportLevel %in% c("Agency","Program")) 
+        {h3(input$agencySelect,align="center")}),
+        (if(input$reportLevel=="Program") 
+        {h3(input$programSelect,align="center")}),
+        br(),
+        h4(paste("Report Period:  ",dateMod(beginSelect()),"-",dateMod(endSelect())),align="center"),
+        h3(class="break","Summary",align="center"),
+        dataTableOutput("dqTable_short"),
+        h3(class="break","Data Elements",align="center"),
+        dataTableOutput("dqTable"),
+        h3(class="break",textOutput("text1"),align="center"),
+        if(input$reportLevel=="Program") {dataTableOutput("Violations")}
+        else {dataTableOutput("progsTable")},
+        br(), br(),
+        div(align="center",plotOutput("plot"))
+      ))
+    }
+    else {
+      div(
+        h4("Main Panel",align="center"),
+        tabsetPanel(
+          tabPanel("Summary",
+                   div(downloadButton("downloadSummary","Download Summary"),align="right"),
+                   dataTableOutput("dqTable_short")
+          ),
+          tabPanel("Data Elements",
+                   div(downloadButton("downloadDQ","Download Elements"),align="right"),
+                   dataTableOutput("dqTable")
+          ),
+          tabPanel(textOutput("text1"),
+                   if(input$reportLevel=="Program") 
+                   {div(div(downloadButton("downloadClients","Download Clients"),align="right"),dataTableOutput("Violations"))}
+                   else 
+                   {div(div(downloadButton("downloadProgs","Download Programs"),align="right"),br(),dataTableOutput("progsTable"))}
+          ),
+          tabPanel("Plot",
+                   plotOutput("plot")
+          )
+        )
+      )
+    } 
   })
   
   
