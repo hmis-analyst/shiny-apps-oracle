@@ -1,5 +1,7 @@
-.libPaths("~/R/win-library/3.0")
-if("RJDBC" %in% installed.packages()==FALSE) install.packages("RJDBC",repos="http://cran.rstudio.com/")
+# .libPaths("~/R/win-library/3.0")
+# install.packages("devtools",repos="http://cran.rstudio.com/")
+# devtools::install_github("shiny-incubator", "rstudio")
+# install.packages("RJDBC",repos="http://cran.rstudio.com/")
 
 # Load shiny and RODBC packages
 library(shinyIncubator)
