@@ -7,7 +7,8 @@
 # install.packages("stringr",repos="http://cran.rstudio.com/")
 
 # Load shiny, RODBC, and ggplot2 packages
-library(shinyIncubator)
+# library(shinyIncubator)
+library(shiny)
 library(RJDBC)
 library(ggplot2)
 library(reshape2)
@@ -248,8 +249,8 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    progress <- Progress$new(session)
-    progress$set(message="Retrieving program data",detail="Please wait a moment...")
+    #progress <- Progress$new(session)
+    #progress$set(message="Retrieving program data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     isolate(
       dataQuality <- dbGetQuery(connection,paste("
@@ -405,7 +406,7 @@ shinyServer(function(input, output, session) {
           )
         )
     }
-    progress$close()    
+    #progress$close()    
     return(dataQuality)
   })
     
@@ -414,8 +415,8 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0 | input$reportLevel != "Program") return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    progress <- Progress$new(session)
-    progress$set(message="Retrieving client data",detail="Please wait a moment...")
+    #progress <- Progress$new(session)
+    #progress$set(message="Retrieving client data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     
     Violations <- 
@@ -600,7 +601,7 @@ shinyServer(function(input, output, session) {
     names(Violations) <- c("Client Key","Missing General Info","Missing Program Info",
       "Missing Income / Benefits","Missing Special Needs","DKR General Info","DKR Program Info",
       "DKR Income / Benefits","DKR Special Needs","Length of Stay Issue")
-    progress$close()
+    #progress$close()
     return(Violations[,1:10])
   })
   
@@ -786,8 +787,8 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0 | input$reportLevel=="Program") return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    progress <- Progress$new(session)
-    progress$set(message="Creating chart",detail="Please wait a moment...")
+    #progress <- Progress$new(session)
+    #progress$set(message="Creating chart",detail="Please wait a moment...")
       #Reactivity is invalidated unless update button is pressed
       isolate(
         print(
@@ -804,13 +805,13 @@ shinyServer(function(input, output, session) {
             ylab("Missing, Don't know, and Refused Responses (%)")
         )
       )
-    progress$close()
+    #progress$close()
   })
   
   
   elementsPlot <- reactive({
-    progress <- Progress$new(session)
-    progress$set(message="Creating chart",detail="Please wait a moment...")
+    #progress <- Progress$new(session)
+    #progress$set(message="Creating chart",detail="Please wait a moment...")
     Missing <- c(sum(dqReport()[5:12,"Missing"]),sum(dqReport()[13:16,"Missing"]),
       sum(dqReport()[17:20,"Missing"]),sum(dqReport()[21:28,"Missing"]))/
       c(sum(dqReport()[5:12,"Applicable Records"]),sum(dqReport()[13:16,"Applicable Records"]),
@@ -850,7 +851,7 @@ shinyServer(function(input, output, session) {
         plot.title = element_text(size = 25)
       )
     )
-    progress$close()
+    #progress$close()
   })
   
   
