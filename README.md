@@ -16,8 +16,8 @@ General Usage Notes
 - For now, this project's primary source of data comes from administrative data collected by homeless service providers in the state of Georgia. Georgia is home to one of the U.S.A.'s only statewide implementations of HMIS (most are smaller).
 - This open-source version of HMIS Data Analyst currently requires a keyfile to connect to the RDBMS. The keyfile is not public and must be stored locally on the developer's machine. Please contact one of the administrators for a copy.
 - Data Analyst applications are browser-based--but they will not work properly on Internet Explorer. Chrome is recommended.
-- Each new version of a Data Analyst application is moved onto a private server and later published to the web. 
 - The primary languages used in writing these applications are R and SQL. To a small extent, they also utilize HTML and JavaScript. A contributor with a working knowledge of JavaScript would have the potential to vastly improve the functionality and appearance of Data Analyst.
+- Every time a new version of Data Analyst is completed, the administrators will copy it onto a private server and publish it to the web. 
 
 Installation Notes for Contributors
 -------------------------------------------
