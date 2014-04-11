@@ -12,7 +12,7 @@ Description
 
 General Usage Notes
 --------------------
-- This project's primary source of data comes from administrative data collected by homeless service providers in the state of Georgia. Georgia is home to one of the U.S.A.'s only statewide implementations of HMIS (most are smaller).
+- For now, this project's primary source of data comes from administrative data collected by homeless service providers in the state of Georgia. Georgia is home to one of the U.S.A.'s only statewide implementations of HMIS (most are smaller).
 - The JDBC API is used to communicate with the Oracle RDBMS.
 - This open-source version of HMIS Data Analyst currently requires a keyfile to connect to the RDBMS. The keyfile is not public and must be stored locally on the developer's machine. Please contact one of the administrators for a copy.
 - Data Analyst applications are written using the open-source <a href=http://cran.us.r-project.org/>R software environment</a> (version >= 3.0.0). In particular, they utilize the <a href=http://shiny.rstudio.com/>Shiny</a> R package (GitHub <a href=https://github.com/rstudio/shiny>here</a>). The technical goal is to present a simple user interface that translates R statistical analyses into useful information that ordinary people can easily digest.
