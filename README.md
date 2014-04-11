@@ -10,7 +10,7 @@ Description
 ------------
 - HMIS Data Analyst is an open-source library of applications designed to provide an intuitive platform for analysis of Homeless Management Information System (<a href=http://en.wikipedia.org/wiki/Homeless_Management_Information_Systems>HMIS</a>) data. The ultimate goal of this project is to help end homelessness by creating transparency, improving knowledge, and facilitating research related to America's homeless service 
 provider systems.
-- These applications are written using the open-source <a href=http://cran.us.r-project.org/>R software environment</a> (version >= 3.0.0). In particular, they utilize the <a href=http://shiny.rstudio.com/>Shiny</a> R package (GitHub <a href=https://github.com/rstudio/shiny>here</a>). The technical goal is to present a simple user interface that translates R statistical analyses into useful information for the interested layperson.
+- These applications are written using the open-source <a href=http://cran.us.r-project.org/>R software environment</a> (version >= 3.0.0). In particular, they utilize the <a href=http://shiny.rstudio.com/>Shiny</a> R package (GitHub <a href=https://github.com/rstudio/shiny>here</a>). The technical goal is to present a simple user interface that translates R statistical analyses into useful information for ordinary people to digest.
 
 General Usage Notes
 --------------------
