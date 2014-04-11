@@ -3,8 +3,8 @@ HMIS Data Analyst (Oracle)
 - **Version:**  2.1.1
 - **Date:**  10 April 2014
 - **RDBMS:**  Oracle
-- **Administrators:**  Jason Rodriguez (GA Dept of Community Affairs); Brian Vogler (); Tony Zhang (Pathways Community Network Institute)
-- **Contact:**  jsn.rgz@gmail.com; brian@vogler.com; tony.zhang@pcni.org
+- **Administrators:**  Jason Rodriguez (Vanderbilt University); Brian Vogler (); Tony Zhang (Pathways Community Network Institute); Dave Totten (Georgia Department of Community Affairs)
+- **Contact:**  jsn.rgz@gmail.com; brian@vogler.com; tony.zhang@pcni.org; dave.totten@dca.ga.gov
 
 Description
 ------------
