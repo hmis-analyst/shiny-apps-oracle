@@ -7,8 +7,8 @@
 # install.packages("stringr",repos="http://cran.rstudio.com/")
 
 # Load shiny, RODBC, and ggplot2 packages
-# library(shinyIncubator)
-library(shiny)
+library(shinyIncubator)
+#library(shiny)
 library(RJDBC)
 library(ggplot2)
 library(reshape2)
@@ -16,7 +16,7 @@ library(stringr)
 
 
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../ojdbc6.jar", " ")
+source("~/HMIS Data Analyst/lib/key.r")
 
 # Create a function to modify date format
 dateMod <- function(x) {paste(substr(x,6,7),"/",substr(x,9,10),"/",substr(x,1,4),sep="")}
@@ -62,7 +62,7 @@ shinyServer(function(input, output, session) {
       dbGetQuery(connection,paste("
         SELECT unique Program_Name
         FROM Program_Profile_Info PPI 
-        WHERE Agency_Name like '",unlist(strsplit(input$agencySelect,"'"))[1],"%' 
+        WHERE Agency_Name = '",str_replace_all(input$agencySelect,"'","''"),"' 
         ORDER BY Program_Name"
       ,sep=""))[[1]]
     )))
@@ -136,9 +136,9 @@ shinyServer(function(input, output, session) {
     dbGetQuery(connection,paste("
       SELECT unique ",finalSelect_Table(),input$reportLevel,"_Key
       FROM Program_Profile_Info PPI 
-      RIGHT JOIN Program_Community_Information PCI 
+      LEFT JOIN Program_Community_Information PCI 
         on PPI.Program_Key = PCI.Program_Key 
-      RIGHT JOIN Community_Group_Information CGI 
+      LEFT JOIN Community_Group_Information CGI 
         on PCI.Group_Key = CGI.Group_Key 
       WHERE ",
         if(input$reportLevel=="Group") {
@@ -191,8 +191,8 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    #progress <- Progress$new(session)
-    #progress$set(message="Retrieving program data",detail="Please wait a moment...")
+    progress <- Progress$new(session)
+    progress$set(message="Retrieving program data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     isolate(
       dataQuality <- dbGetQuery(connection,paste("
@@ -348,7 +348,7 @@ shinyServer(function(input, output, session) {
           )
         )
     }
-    #progress$close()    
+    progress$close()    
     return(dataQuality)
   })
     
@@ -357,8 +357,8 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0 | input$reportLevel != "Program") return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    #progress <- Progress$new(session)
-    #progress$set(message="Retrieving client data",detail="Please wait a moment...")
+    progress <- Progress$new(session)
+    progress$set(message="Retrieving client data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     
     Violations <- 
@@ -543,7 +543,7 @@ shinyServer(function(input, output, session) {
     names(Violations) <- c("Client Key","Missing General Info","Missing Program Info",
       "Missing Income / Benefits","Missing Special Needs","DKR General Info","DKR Program Info",
       "DKR Income / Benefits","DKR Special Needs","Length of Stay Issue")
-    #progress$close()
+    progress$close()
     return(Violations[,1:10])
   })
   
@@ -729,8 +729,8 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0 | input$reportLevel=="Program") return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    #progress <- Progress$new(session)
-    #progress$set(message="Creating chart",detail="Please wait a moment...")
+    progress <- Progress$new(session)
+    progress$set(message="Creating chart",detail="Please wait a moment...")
       #Reactivity is invalidated unless update button is pressed
       isolate(
         print(
@@ -747,13 +747,13 @@ shinyServer(function(input, output, session) {
             ylab("Missing, Don't know, and Refused Responses (%)")
         )
       )
-    #progress$close()
+    progress$close()
   })
   
   
   elementsPlot <- reactive({
-    #progress <- Progress$new(session)
-    #progress$set(message="Creating chart",detail="Please wait a moment...")
+    progress <- Progress$new(session)
+    progress$set(message="Creating chart",detail="Please wait a moment...")
     Missing <- c(sum(dqReport()[5:12,"Missing"]),sum(dqReport()[13:16,"Missing"]),
       sum(dqReport()[17:20,"Missing"]),sum(dqReport()[21:28,"Missing"]))/
       c(sum(dqReport()[5:12,"Applicable Records"]),sum(dqReport()[13:16,"Applicable Records"]),
@@ -793,7 +793,7 @@ shinyServer(function(input, output, session) {
         plot.title = element_text(size = 25)
       )
     )
-    #progress$close()
+    progress$close()
   })
   
   
@@ -837,7 +837,7 @@ shinyServer(function(input, output, session) {
       ))
     }
     else {
-      div(
+      isolate(div(
         h4("Main Panel",align="center"),
         tabsetPanel(
           tabPanel("Summary",
@@ -858,7 +858,7 @@ shinyServer(function(input, output, session) {
                    plotOutput("plot")
           )
         )
-      )
+      ))
     } 
   })
   
