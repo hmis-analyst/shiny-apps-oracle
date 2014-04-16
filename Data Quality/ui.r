@@ -80,7 +80,7 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Data Quality"),
-            p(strong("Version:"),"2.1.1"),
+            p(strong("Version:"),"2.1.3"),
             p(strong("Date:"),"16 April 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
