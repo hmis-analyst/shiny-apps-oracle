@@ -138,7 +138,7 @@ shinyServer(function(input, output, session) {
       FROM Program_Profile_Info PPI 
       LEFT JOIN Program_Community_Information PCI 
         on PPI.Program_Key = PCI.Program_Key 
-      LEFT JOIN Community_Group_Information CGI 
+      LEFT JOIN Community_Group_Information CGI
         on PCI.Group_Key = CGI.Group_Key 
       WHERE ",
         if(input$reportLevel=="Group") {
