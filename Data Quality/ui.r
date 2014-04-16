@@ -8,9 +8,8 @@
 library(shiny)
 library(RJDBC)
 
-
 # Establish JDBC connection using RJDBC
-source("~/HMIS Data Analyst/lib/key.r")
+drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../ojdbc6.jar", " ")
 
 shinyUI(basicPage(
   # progressInit(),

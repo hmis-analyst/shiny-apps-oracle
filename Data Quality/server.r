@@ -16,7 +16,7 @@ library(stringr)
 
 
 # Establish JDBC connection using RJDBC
-source("~/HMIS Data Analyst/lib/key.r")
+drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../ojdbc6.jar", " ")
 
 # Create a function to modify date format
 dateMod <- function(x) {paste(substr(x,6,7),"/",substr(x,9,10),"/",substr(x,1,4),sep="")}
