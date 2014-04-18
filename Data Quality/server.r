@@ -16,7 +16,7 @@ library(stringr)
 
 
 # Establish JDBC connection using RJDBC
-source("~/HMIS Data Analyst/lib/key.r")
+source("~/HMIS Data Analyst/lib/connectionkey.r")
 
 # Create a function to modify date format
 dateMod <- function(x) {paste(substr(x,6,7),"/",substr(x,9,10),"/",substr(x,1,4),sep="")}
@@ -28,6 +28,34 @@ shinyServer(function(input, output, session) {
   #################################
   # USER SELECTIONS
   #################################
+  
+  # Passkey
+  groupKeys <- reactive({
+    input$update
+    isolate(source("~/HMIS Data Analyst/lib/passkeys.r",local=TRUE))
+    if(length(groupKeys)!=0) {
+      if(
+        isolate(dbGetQuery(connection,paste("
+          SELECT count(PPI.Program_Key)
+          FROM Program_Profile_Info PPI
+          JOIN Program_Community_Information PCI
+            on PPI.Program_Key = PCI.Program_Key
+          WHERE 
+            PPI.Agency_Name='",str_replace_all(input$agencySelect,"'","''"),"' and
+            PPI.Program_Name='",str_replace_all(input$programSelect,"'","''"),"' and 
+            Group_Key in (",groupKeys,")"
+        ,sep="")))==0
+      ) {
+        rm(groupKeys)
+      }
+      else {
+        return(groupKeys)
+      }
+    }
+    else {
+      rm(groupKeys)
+    }
+  })
   
   # Store report level selection
   reportLevel <- reactive({
@@ -354,7 +382,7 @@ shinyServer(function(input, output, session) {
     
   
   Violations <- reactive({
-    if (progCount2()==0 | input$reportLevel != "Program") return()
+    if (progCount2()==0 | input$reportLevel != "Program" | is.null(groupKeys())) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
     progress <- Progress$new(session)
@@ -362,9 +390,7 @@ shinyServer(function(input, output, session) {
     #Reactivity is invalidated unless update button is pressed
     
     Violations <- 
-    
       isolate(dbGetQuery(connection,paste("
-
         SELECT 
           Client_Key, 
           GI_M, 
@@ -377,9 +403,7 @@ shinyServer(function(input, output, session) {
           SN_DKR, 
           LOS_Issue, 
           Violations 
-          
         FROM (
-
           SELECT unique 
             Client_Key, 
             case when count(FN_M)>0 or count(LN_M)>0 or count(ID_M)>0 or count(DOB_M)>0 or
@@ -415,9 +439,7 @@ shinyServer(function(input, output, session) {
               count(unique DD_DKR) + count(unique CHC_DKR) + count(unique HIV_DKR) + 
               count(unique MH_DKR) + count(unique SA_DKR) + count(unique DV_DKR) + 
               count(unique LOS_Issue) Violations
-              
           FROM (
-            
             SELECT unique
               PE.Program_Enrollment_Key,
               CI.Client_Key,
@@ -449,7 +471,6 @@ shinyServer(function(input, output, session) {
               case when Dom_Vio_Survivor is null then PE.Program_Enrollment_Key end DV_M,
               case when Destination_Code is null and Program_Exit_Date is not null 
                 then PE.Program_Enrollment_Key end Dest_M,
-                
               case when ID_Type in (8,9) then CI.Client_Key end ID_DKR,
               case when DOB_Type in (8,9) then CI.Client_Key end DOB_DKR,
               case when Race_Code in (15,16) then CI.Client_Key end Race_DKR,
@@ -474,35 +495,27 @@ shinyServer(function(input, output, session) {
               case when Dom_Vio_Survivor in (8,9) then PE.Program_Enrollment_Key end DV_DKR,
               case when Destination_Code in (8,9) and Program_Exit_Date is not null 
                 then PE.Program_Enrollment_Key end Dest_DKR,
-                
               case when ((Program_Type_Code = 1 and to_date('",endSelect(),"','yyyy-mm-dd') - 
                 Program_Entry_Date > 180) or (Program_Type_Code = 2 and 
                 to_date('",endSelect(),"','yyyy-mm-dd') - Program_Entry_Date > 720)) and 
                 Program_Exit_Date is null then PE.Program_Enrollment_Key end LOS_Issue
-                
             FROM Program_Enrollment PE
-              
             RIGHT JOIN Program_Profile_Info PPI
               on PE.Program_Key = PPI.Program_Key
-              
+            LEFT JOIN Program_Community_Information PCI
+              on PPI.Program_Key = PCI.Program_Key
             JOIN Client_Information CI
               on PE.Client_Key = CI.Client_Key
-              
             LEFT JOIN Client_Status_Information CSI
               on PE.Program_Enrollment_Key = CSI.Program_Enrollment_Key
-              
             LEFT JOIN Client_Cash_Income CCI_N
               on PE.Entry_Cash_Key = CCI_N.Cash_GK
-              
             LEFT JOIN Client_Cash_Income CCI_X
               on PE.Exit_Cash_Key = CCI_X.Cash_GK
-              
             LEFT JOIN Client_Noncash_Benefits CNB_N
               on PE.Entry_Noncash_Key = CNB_N.Noncash_GK
-              
             LEFT JOIN Client_Noncash_Benefits CNB_X
               on PE.Exit_Noncash_Key = CNB_X.Noncash_GK
-              
             LEFT JOIN (
               SELECT 
                 Program_Enrollment_Key, 
@@ -518,26 +531,20 @@ shinyServer(function(input, output, session) {
               GROUP BY Program_Enrollment_Key, Collect_Stage
             ) CSNI
               on PE.Program_Enrollment_Key = CSNI.Program_Enrollment_Key
-              
             WHERE 
+              PCI.Group_Key in (",groupKeys(),") and
               (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or 
                 Program_Exit_Date is null) and
               Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and
               CSI.Collect_Stage = 1 and
               CSNI.Collect_Stage = 1 and 
               PPI.Program_Key=",finalSelect_Key()," 
-            
           )
-            
           GROUP BY Client_Key
-            
           ORDER BY Violations Desc
-
         ) 
-          
         WHERE 
           Violations > 0
-        
       ",sep="")))
     
     names(Violations) <- c("Client Key","Missing General Info","Missing Program Info",
@@ -605,120 +612,134 @@ shinyServer(function(input, output, session) {
   
   output$dqTable_short <- renderDataTable({
     dqReport_short()
-  },options=list(fnRowCallback = I('
-      function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-        // Column alignment
-        $("td:eq(1)", nRow).css("text-align", "right");
-        $("td:eq(2)", nRow).css("text-align", "right");
-        $("td:eq(3)", nRow).css("text-align", "right");
-        $("td:eq(4)", nRow).css("text-align", "right");
-        // Make column 4 values bold
-        $("td:eq(4)", nRow).css("font-weight", "bold");
-        // Set conditional font colors for values in column 2
-        if (parseFloat(aData[2]) > 0) {
-          $("td:eq(2)", nRow).css("color", "red");
-          $("td:eq(2)", nRow).css("font-weight", "bold");
-        };
-        // Set conditional font colors for values in column 4
-        $("td:eq(4)", nRow).css("color", "green");
-        if (parseFloat(aData[4]) >= 2.5) {
-          $("td:eq(4)", nRow).css("color", "orange");
-        };
-        if (parseFloat(aData[4]) >= 5) {
-          $("td:eq(4)", nRow).css("color", "red");
-        };
-      }
-    '),bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
-    aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-    list(bSearchable=FALSE),list(bSearchable=FALSE))))
+  },
+    options=list(
+      fnRowCallback = I('
+        function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+          // Column alignment
+          $("td:eq(1)", nRow).css("text-align", "right");
+          $("td:eq(2)", nRow).css("text-align", "right");
+          $("td:eq(3)", nRow).css("text-align", "right");
+          $("td:eq(4)", nRow).css("text-align", "right");
+          // Make column 4 values bold
+          $("td:eq(4)", nRow).css("font-weight", "bold");
+          // Set conditional font colors for values in column 2
+          if (parseFloat(aData[2]) > 0) {
+            $("td:eq(2)", nRow).css("color", "red");
+            $("td:eq(2)", nRow).css("font-weight", "bold");
+          };
+          // Set conditional font colors for values in column 4
+          $("td:eq(4)", nRow).css("color", "green");
+          if (parseFloat(aData[4]) >= 2.5) {
+            $("td:eq(4)", nRow).css("color", "orange");
+          };
+          if (parseFloat(aData[4]) >= 5) {
+            $("td:eq(4)", nRow).css("color", "red");
+          };
+        }
+      '),
+      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
+      aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
+        list(bSearchable=FALSE),list(bSearchable=FALSE))
+    )
+  )
 
   output$dqTable <- renderDataTable({
     dqReport()
-  },options=list(
-    fnRowCallback = I('
-      function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-        // Column alignment
-        $("td:eq(1)", nRow).css("text-align", "right");
-        $("td:eq(2)", nRow).css("text-align", "right");
-        $("td:eq(3)", nRow).css("text-align", "right");
-        $("td:eq(4)", nRow).css("text-align", "right");
-        // Make column 4 values bold
-        $("td:eq(4)", nRow).css("font-weight", "bold");
-        // Set conditional font colors for values in column 2
-        if (parseFloat(aData[2]) > 0) {
-          $("td:eq(2)", nRow).css("color", "red");
-          $("td:eq(2)", nRow).css("font-weight", "bold");
-        };
-        // Set conditional font colors for values in column 4
-        $("td:eq(4)", nRow).css("color", "green");
-        if (parseFloat(aData[4]) >= 2.5) {
-          $("td:eq(4)", nRow).css("color", "orange");
-        };
-        if (parseFloat(aData[4]) >= 5) {
-          $("td:eq(4)", nRow).css("color", "red");
-        };
-      }
-    '),bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
-    aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-    list(bSearchable=FALSE),list(bSearchable=FALSE))))
+  },
+    options=list(
+      fnRowCallback = I('
+        function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+          // Column alignment
+          $("td:eq(1)", nRow).css("text-align", "right");
+          $("td:eq(2)", nRow).css("text-align", "right");
+          $("td:eq(3)", nRow).css("text-align", "right");
+          $("td:eq(4)", nRow).css("text-align", "right");
+          // Make column 4 values bold
+          $("td:eq(4)", nRow).css("font-weight", "bold");
+          // Set conditional font colors for values in column 2
+          if (parseFloat(aData[2]) > 0) {
+            $("td:eq(2)", nRow).css("color", "red");
+            $("td:eq(2)", nRow).css("font-weight", "bold");
+          };
+          // Set conditional font colors for values in column 4
+          $("td:eq(4)", nRow).css("color", "green");
+          if (parseFloat(aData[4]) >= 2.5) {
+            $("td:eq(4)", nRow).css("color", "orange");
+          };
+          if (parseFloat(aData[4]) >= 5) {
+            $("td:eq(4)", nRow).css("color", "red");
+          };
+        }
+      '),
+      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
+      aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
+        list(bSearchable=FALSE),list(bSearchable=FALSE))
+    )
+  )
   
   progsTable <- reactive({
     if (progCount2()==0) return()
-      dqReportProgs <- dataQuality()[,
-        c("PROGRAM_KEY","AGENCY_NAME","PROGRAM_NAME","CLIENTS","ENROLLS","APP_REC","PCT_MISSDKR")]
-      dqReportProgs <- dqReportProgs[order(-dqReportProgs[,7]),]
-      dqReportProgs[,7] <- round(dqReportProgs[,7]*100,1)
-      names(dqReportProgs) <- c("Program Key","Agency Name","Program Name","Clients","Enrollments","Applicable Records","Missing + DKR (%)")
-      return(dqReportProgs)
+    dqReportProgs <- dataQuality()[,c("PROGRAM_KEY","AGENCY_NAME","PROGRAM_NAME","CLIENTS","ENROLLS","APP_REC","PCT_MISSDKR")]
+    dqReportProgs <- dqReportProgs[order(-dqReportProgs[,7]),]
+    dqReportProgs[,7] <- round(dqReportProgs[,7]*100,1)
+    names(dqReportProgs) <- c("Program Key","Agency Name","Program Name","Clients","Enrollments","Applicable Records","Missing + DKR (%)")
+    return(dqReportProgs)
   })
   
   output$progsTable <- renderDataTable({
     progsTable()
-  },options=list(
-    fnRowCallback = I('
-      function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-        // Column alignment
-        $("td:eq(3)", nRow).css("text-align", "right");
-        $("td:eq(4)", nRow).css("text-align", "right");
-        $("td:eq(5)", nRow).css("text-align", "right");
-        $("td:eq(6)", nRow).css("text-align", "right");
-        // Make column 6 values bold
-        $("td:eq(6)", nRow).css("font-weight", "bold");
-        // Set conditional font colors for values in column 6
-        $("td:eq(6)", nRow).css("color", "green");
-        if (parseFloat(aData[6]) >= 2.5) {
-          $("td:eq(6)", nRow).css("color", "orange");
-        };
-        if (parseFloat(aData[6]) >= 5) {
-          $("td:eq(6)", nRow).css("color", "red");
-        };
-      }
-    '),bAutoWidth=FALSE,bPaginate=0,bLengthChange=0,bInfo=0,iDisplayLength=500,
+  },
+    options=list(
+      fnRowCallback = I('
+        function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+          // Column alignment
+          $("td:eq(3)", nRow).css("text-align", "right");
+          $("td:eq(4)", nRow).css("text-align", "right");
+          $("td:eq(5)", nRow).css("text-align", "right");
+          $("td:eq(6)", nRow).css("text-align", "right");
+          // Make column 6 values bold
+          $("td:eq(6)", nRow).css("font-weight", "bold");
+          // Set conditional font colors for values in column 6
+          $("td:eq(6)", nRow).css("color", "green");
+          if (parseFloat(aData[6]) >= 2.5) {
+            $("td:eq(6)", nRow).css("color", "orange");
+          };
+          if (parseFloat(aData[6]) >= 5) {
+            $("td:eq(6)", nRow).css("color", "red");
+          };
+        }
+      '),
+      bAutoWidth=FALSE,bPaginate=0,bLengthChange=0,bInfo=0,iDisplayLength=500,
       aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-      list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
-  ))
+        list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
+    )
+  )
   
   output$Violations <- renderDataTable({
     Violations()
-  },options=list(
+  },
+    options=list(
       fnRowCallback = I('
-      function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-        // Column alignment
-        $("td:eq(1)", nRow).css("text-align", "center");
-        $("td:eq(2)", nRow).css("text-align", "center");
-        $("td:eq(3)", nRow).css("text-align", "center");
-        $("td:eq(4)", nRow).css("text-align", "center");
-        $("td:eq(5)", nRow).css("text-align", "center");
-        $("td:eq(6)", nRow).css("text-align", "center");
-        $("td:eq(7)", nRow).css("text-align", "center");
-        $("td:eq(8)", nRow).css("text-align", "center");
-        $("td:eq(9)", nRow).css("text-align", "center");
-      }
-    '),bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bInfo=0,iDisplayLength=500,
+        function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+          // Column alignment
+          $("td:eq(1)", nRow).css("text-align", "center");
+          $("td:eq(2)", nRow).css("text-align", "center");
+          $("td:eq(3)", nRow).css("text-align", "center");
+          $("td:eq(4)", nRow).css("text-align", "center");
+          $("td:eq(5)", nRow).css("text-align", "center");
+          $("td:eq(6)", nRow).css("text-align", "center");
+          $("td:eq(7)", nRow).css("text-align", "center");
+          $("td:eq(8)", nRow).css("text-align", "center");
+          $("td:eq(9)", nRow).css("text-align", "center");
+        }
+      '),
+      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bInfo=0,iDisplayLength=500,
       aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-      list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-      list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
-  ))
+        list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
+        list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
+    )
+  )
   
 
   #################################
@@ -812,7 +833,6 @@ shinyServer(function(input, output, session) {
   output$mainPanel <- renderUI({
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    
     if (input$printable==TRUE) {
       #Reactivity is invalidated unless update button is pressed
       isolate(mainPanel(
@@ -841,21 +861,39 @@ shinyServer(function(input, output, session) {
         h4("Main Panel",align="center"),
         tabsetPanel(
           tabPanel("Summary",
-                   div(downloadButton("downloadSummary","Download Summary"),align="right"),
-                   dataTableOutput("dqTable_short")
+            div(downloadButton("downloadSummary","Download Summary"),align="right"),
+            dataTableOutput("dqTable_short")
           ),
           tabPanel("Data Elements",
-                   div(downloadButton("downloadDQ","Download Elements"),align="right"),
-                   dataTableOutput("dqTable")
+            div(downloadButton("downloadDQ","Download Elements"),align="right"),
+            dataTableOutput("dqTable")
           ),
           tabPanel(textOutput("text1"),
-                   if(input$reportLevel=="Program") 
-                   {div(div(downloadButton("downloadClients","Download Clients"),align="right"),dataTableOutput("Violations"))}
-                   else 
-                   {div(div(downloadButton("downloadProgs","Download Programs"),align="right"),br(),dataTableOutput("progsTable"))}
+            if(input$reportLevel=="Program") {
+              if(is.null(groupKeys())) {
+                div(
+                  p(strong("UNAUTHORIZED USER")),
+                  p("You must enter a valid passkey to access this program's client-level data.")
+                  #p("If you have lost your passkey or have never received one, please contact ",a(href="mailto:dave.totten@dca.ga.gov","Dave Totten"))
+                )
+              }
+              else {
+                div(
+                  div(downloadButton("downloadClients","Download Clients"),align="right"),
+                  dataTableOutput("Violations")
+                )
+              }
+            }
+            else {
+              div(
+                div(downloadButton("downloadProgs","Download Programs"),align="right"),
+                br(),
+                dataTableOutput("progsTable")
+              )
+            }
           ),
           tabPanel("Plot",
-                   plotOutput("plot")
+            plotOutput("plot")
           )
         )
       ))

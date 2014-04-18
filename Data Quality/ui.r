@@ -9,7 +9,7 @@ library(shinyIncubator)
 library(RODBC)
 
 # Establish JDBC connection using RJDBC
-source("~/HMIS Data Analyst/lib/key.r")
+source("~/HMIS Data Analyst/lib/connectionkey.r")
 
 shinyUI(basicPage(
   progressInit(),
@@ -31,6 +31,10 @@ shinyUI(basicPage(
           tabPanel("Data Options",
             # Require user to click "Submit" button in order for graph to update
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
+            conditionalPanel(
+              condition = "input.reportLevel == 'Program'",
+              textInput("passkey","Enter passkey to access client data")
+            ),
             # Display date range input with default values
             dateRangeInput("daterange","Date range", format='mm/dd/yyyy',start="2013-07-01",max=Sys.Date()),
             br(),
@@ -80,14 +84,14 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Data Quality"),
-            p(strong("Version:"),"2.1.3"),
-            p(strong("Date:"),"16 April 2014"),
+            p(strong("Version:"),"2.2.0"),
+            p(strong("Date:"),"18 April 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jsn.rgz@gmail.com","jsn.rgz@gmail.com")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Minor bug fixes')
+            p(' - Added passkey requirement for viewing client-level data')
           )
         )
       )
