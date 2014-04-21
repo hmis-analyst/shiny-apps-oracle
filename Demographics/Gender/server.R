@@ -16,26 +16,7 @@ shinyServer(function(input, output, session) {
   # USER SELECTIONS
   #################################
   
-  progCount <- reactive({
-    dbGetQuery(connection,paste("
-      SELECT count(PPI.Program_Key)
-      FROM Program_Profile_Info PPI 
-      FULL JOIN Program_Community_Information PCI 
-        on PPI.Program_Key = PCI.Program_Key 
-      FULL JOIN Community_Group_Information CGI 
-        on PCI.Group_Key = CGI.Group_Key 
-      WHERE ", 
-        if(input$reportLevel=="Group") {
-          paste("CGI.Group_Name='",str_replace_all(input$groupSelect,"'","''"),"'",sep="")
-        } 
-        else {
-          paste("PPI.Agency_Name='",str_replace_all(input$agencySelect,"'","''"),"'",sep="")
-        },
-        if(input$reportLevel=="Program") {
-          paste(" and PPI.Program_Name='",str_replace_all(input$programSelect,"'","''"),"'",sep="")
-        }
-    ,sep=""))[[1]]
-  })
+  # Count of programs associated with the user's group/agency/program selection (non-reactive)
   progCount2 <- reactive({
     input$update
     isolate(
