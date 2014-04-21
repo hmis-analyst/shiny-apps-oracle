@@ -14,7 +14,7 @@ source("~/HMIS Data Analyst/lib/connectionkey.r")
 shinyUI(basicPage(
   progressInit(),
   # Call a separate HTML file to create bars, headers, layouts
-  includeHTML("page.html"),
+  includeHTML("lib/page.html"),
   fluidRow(
     column(4,
       tags$form(class="well noprint",
