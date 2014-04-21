@@ -1,6 +1,4 @@
 div(
-# Require user to click "ANALYZE" button in order for graph to update
-div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
 # Display date range input with default values
 dateRangeInput("daterange","Date range", format='mm/dd/yyyy',start="2013-07-01",max=Sys.Date()),
 br(),

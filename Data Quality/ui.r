@@ -6,10 +6,11 @@
 # Load shiny and RODBC packages
 library(shinyIncubator)
 #library(shiny)
-library(RODBC)
+library(RJDBC)
 
 # Establish JDBC connection using RJDBC
-source("~/HMIS Data Analyst/lib/connectionkey.r")
+drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../../lib/ojdbc6.jar", " ")
+source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
 
 shinyUI(basicPage(
   progressInit(),

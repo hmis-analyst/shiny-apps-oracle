@@ -24,6 +24,8 @@ shinyUI(basicPage(
             p('3. When the analysis is complete, the Main Panel will update.')
           ),
           tabPanel("Data Options",
+            # Require user to click "ANALYZE" button in order for graph to update
+            div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
             # Import "Data Options" ui code
             source("../../lib/Data Options.ui.r",local=TRUE)
           ),
