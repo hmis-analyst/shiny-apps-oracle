@@ -1,0 +1,93 @@
+# Load shiny, RODBC, and ggplot2 packages
+library(shiny)
+library(RJDBC)
+library(ggplot2)
+library(stringr)
+
+
+# Establish ODBC connection using RJDBC
+drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../../lib/ojdbc6.jar", " ")
+source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
+
+# Define server logic required to query/graph HMIS gender data
+shinyServer(function(input, output) {
+
+  
+  #################################
+  # USER SELECTIONS
+  #################################
+  
+  # Import Data Options server code
+  source("../../lib/Data Options.server.r", local=TRUE)
+  
+  
+  #################################
+  # MAIN QUERY
+  #################################
+  
+  # Store query results into a reactive data frame
+  queryResults <- reactive({
+    input$update
+    
+    # Query gender breakdown  based on user selections    
+    isolate(
+      dbGetQuery(connection,paste("
+
+			  SELECT 
+			  count(unique case when Gender_Code = 1 then CI.Client_Key end) Men,
+  		  count(unique case when Gender_Code = 2 then CI.Client_Key end) Women
+	
+			  FROM Program_Enrollment PE
+
+			  JOIN Client_Information CI
+			  ON PE.Client_Key = CI.Client_Key
+
+			  JOIN Program_Community_Information PCI
+			  ON PE.Program_Key = PCI.Program_Key
+
+			  JOIN Community_Group_Information CGI
+			  ON PCI.Group_Key = CGI.Group_Key
+  
+        JOIN Program_Profile_Info PPI
+        ON PE.Program_Key = PPI.Program_Key
+
+			  WHERE
+			  (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
+			  Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
+		    finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key() 
+
+        ,sep="")
+      )
+    )
+	})
+  
+  
+  #################################
+  # PLOT
+  #################################
+
+  # Create a reactive plot based on queryResults()
+  # Then make available for output into UI
+	output$Plot <- renderPlot({
+    if (progCount2()==0) return()
+      # Transform queryResults() into a format acceptable for plotting
+      graphData <- data.frame(Gender = c('Men','Women'),Value=c(queryResults()[[1]],queryResults()[[2]]))
+    isolate(  
+		  print(
+        # Begin plotting with ggplot()
+        # Define variables
+        ggplot(graphData,aes(x=factor(Gender,levels=Gender),y=Value)) + 
+		    # Define as bar chart
+        geom_bar(fill=c("royalblue2","green4"),stat='identity') + 
+		    # Define title
+          ggtitle(paste("Gender Breakdown for ", ifelse(input$reportType!="Program","Programs in ",paste(input$agencySelect,": ",sep="")),
+          finalSelect_Text(),"\nReport Period: ",substr(beginSelect(),6,7),"/",substr(beginSelect(),9,10),"/",
+          substr(beginSelect(),1,4)," - ",substr(endSelect(),6,7),"/",substr(endSelect(),9,10),"/",
+          substr(endSelect(),1,4),sep="")) + 
+		    # Define axis labels
+        xlab("Gender") + 
+        ylab("Number of Unique Clients")
+      )
+    )
+	}) 
+})
