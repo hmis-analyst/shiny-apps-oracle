@@ -73,7 +73,8 @@ shinyUI(basicPage(
             br(),br(),br(),br(),br(),br()
           ),
           tabPanel("Viewing Options",
-            checkboxInput("printable", "Printable", FALSE)
+            checkboxInput("printable", "Printable", FALSE),
+            checkboxInput("mdkr", 'Omit unknown destinations (missing, "Don\'t know," and "Refused")',FALSE)
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Housing Destinations"),
