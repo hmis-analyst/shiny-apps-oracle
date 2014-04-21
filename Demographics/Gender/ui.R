@@ -12,7 +12,7 @@ shinyUI(basicPage(
   #Initiate progress indicators
   progressInit(),
   fluidRow(
-    # Side panel
+    # SIDE PANEL
     column(4,
       wellPanel(
         h3("Gender",align="center"),
@@ -41,12 +41,10 @@ shinyUI(basicPage(
         )
       )
     ),
-    # Main panel
+    # MAIN PANEL
     column(8,
-      div(style="width: 100%; height: 400px;",
-        # Call "Plot" (reactive plot, defined in server.R)
-        plotOutput("Plot")
-      )	
+      # Call "Plot" (reactive plot, defined in server.R)
+      plotOutput("Plot")
     )
   )
 ))

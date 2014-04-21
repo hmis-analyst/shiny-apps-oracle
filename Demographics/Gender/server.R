@@ -101,10 +101,10 @@ shinyServer(function(input, output, session) {
 		    # Define as bar chart
         geom_bar(fill=c("royalblue2","green4"),stat='identity') + 
 		    # Define title
-          ggtitle(paste("Gender Breakdown for ", ifelse(input$reportType!="Program","Programs in ",paste(input$agencySelect,": ",sep="")),
-          finalSelect_Text(),"\nReport Period: ",substr(beginSelect(),6,7),"/",substr(beginSelect(),9,10),"/",
-          substr(beginSelect(),1,4)," - ",substr(endSelect(),6,7),"/",substr(endSelect(),9,10),"/",
-          substr(endSelect(),1,4),sep="")) + 
+          ggtitle(paste("Gender Breakdown for ", ifelse(input$reportLevel!="Program","Programs in ",paste(input$agencySelect,": ",sep="")),
+            finalSelect_Text(),"\nReport Period: ",substr(beginSelect(),6,7),"/",substr(beginSelect(),9,10),"/",
+            substr(beginSelect(),1,4)," - ",substr(endSelect(),6,7),"/",substr(endSelect(),9,10),"/",
+            substr(endSelect(),1,4),sep="")) + 
 		    # Define axis labels
         xlab("Gender") + 
         ylab("Number of Unique Clients")
