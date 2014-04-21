@@ -29,7 +29,7 @@ shinyUI(basicPage(
                you can modify the viewing options.')
           ),
           tabPanel("Data Options",
-            # Require user to click "Submit" button in order for graph to update
+            # Require user to click "ANALYZE" button in order for graph to update
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
             conditionalPanel(
               condition = "input.reportLevel == 'Program'",
