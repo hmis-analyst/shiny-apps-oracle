@@ -14,7 +14,10 @@ shinyUI(basicPage(
       tags$form(class="well noprint",
         h3("Gender",align="center"),
         tabsetPanel(selected="Data Options",
-          tabPanel("Instructions"
+          tabPanel("Instructions",
+            p('1. FIRST select your data options.'),
+            p('2. Click the "Analyze" button.'),
+            p('3. When the analysis is complete, the Main Panel will update.')
           ),
           tabPanel("Data Options",
             # Import "Data Options" ui code
