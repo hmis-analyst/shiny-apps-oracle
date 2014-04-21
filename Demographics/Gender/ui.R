@@ -1,18 +1,22 @@
 # Load shiny and RODBC packages
-library(shiny)
+library(shinyIncubator)
 library(RJDBC)
 
 
-# Establish ODBC connection using RJDBC
+# Establish JDBC connection using RJDBC
 drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../../lib/ojdbc6.jar", " ")
 source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
 
 # Define UI for HMIS gender trends application
 shinyUI(basicPage(
+  #Initiate progress indicators
+  progressInit(),
   fluidRow(
+    # Side panel
     column(4,
-      tags$form(class="well noprint",
+      wellPanel(
         h3("Gender",align="center"),
+        # Tab panels within side panel
         tabsetPanel(selected="Data Options",
           tabPanel("Instructions",
             p('1. FIRST select your data options.'),
@@ -37,10 +41,10 @@ shinyUI(basicPage(
         )
       )
     ),
+    # Main panel
     column(8,
       div(style="width: 100%; height: 400px;",
         # Call "Plot" (reactive plot, defined in server.R)
-        # Display on main panel
         plotOutput("Plot")
       )	
     )

@@ -1,16 +1,15 @@
 # Load shiny, RODBC, and ggplot2 packages
-library(shiny)
+library(shinyIncubator)
 library(RJDBC)
 library(ggplot2)
 library(stringr)
 
-
-# Establish ODBC connection using RJDBC
+# Establish JDBC connection using RJDBC
 drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../../lib/ojdbc6.jar", " ")
 source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
 
 # Define server logic required to query/graph HMIS gender data
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
 
   
   #################################
@@ -60,7 +59,6 @@ shinyServer(function(input, output) {
       ,sep=""))[[1]]
     )
   })
-  
   # Import Data Options server code
   source("../../lib/Data Options.server.r", local=TRUE)
   
@@ -72,37 +70,32 @@ shinyServer(function(input, output) {
   # Store query results into a reactive data frame
   queryResults <- reactive({
     input$update
-    
+    progress <- Progress$new(session)
+    progress$set(message="Retrieving program data",detail="Please wait a moment...")
     # Query gender breakdown  based on user selections    
     isolate(
-      dbGetQuery(connection,paste("
-
-			  SELECT 
-			  count(unique case when Gender_Code = 1 then CI.Client_Key end) Men,
-  		  count(unique case when Gender_Code = 2 then CI.Client_Key end) Women
-	
-			  FROM Program_Enrollment PE
-
-			  JOIN Client_Information CI
-			  ON PE.Client_Key = CI.Client_Key
-
-			  JOIN Program_Community_Information PCI
-			  ON PE.Program_Key = PCI.Program_Key
-
-			  JOIN Community_Group_Information CGI
-			  ON PCI.Group_Key = CGI.Group_Key
-  
+      queryResults <- dbGetQuery(connection,paste("
+        SELECT 
+          count(unique case when Gender_Code = 1 then CI.Client_Key end) Men,
+          count(unique case when Gender_Code = 2 then CI.Client_Key end) Women
+        FROM Program_Enrollment PE
+        JOIN Client_Information CI
+          on PE.Client_Key = CI.Client_Key
+        JOIN Program_Community_Information PCI
+          on PE.Program_Key = PCI.Program_Key
+        JOIN Community_Group_Information CGI
+          on PCI.Group_Key = CGI.Group_Key
         JOIN Program_Profile_Info PPI
-        ON PE.Program_Key = PPI.Program_Key
-
-			  WHERE
-			  (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
-			  Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
-		    finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key() 
-
+          on PE.Program_Key = PPI.Program_Key
+        WHERE
+          (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
+          Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
+          finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key() 
         ,sep="")
       )
     )
+    progress$close() 
+    return(queryResults)
 	})
   
   
@@ -114,8 +107,11 @@ shinyServer(function(input, output) {
   # Then make available for output into UI
 	output$Plot <- renderPlot({
     if (progCount2()==0) return()
-      # Transform queryResults() into a format acceptable for plotting
-      graphData <- data.frame(Gender = c('Men','Women'),Value=c(queryResults()[[1]],queryResults()[[2]]))
+    input$update
+    graphData <- data.frame(Gender = c('Men','Women'),Value=c(queryResults()[[1]],queryResults()[[2]]))
+    progress <- Progress$new(session)
+    progress$set(message="Creating chart",detail="Please wait a moment...")
+    # Transform queryResults() into a format acceptable for plotting
     isolate(  
 		  print(
         # Begin plotting with ggplot()
@@ -133,5 +129,6 @@ shinyServer(function(input, output) {
         ylab("Number of Unique Clients")
       )
     )
+    progress$close()
 	}) 
 })
