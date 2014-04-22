@@ -103,21 +103,19 @@ shinyServer(function(input, output, session) {
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
     progress <- Progress$new(session)
-    isolate(progress$set(message="Retrieving data",detail="Please wait a moment..."))
+    progress$set(message="Retrieving data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     isolate(
       # Query gender breakdown  based on user selections    
       qResults_short <- dbGetQuery(connection,paste("
         SELECT 
-          count(PE.Program_Enrollment_Key) Leavers,
-          count(case when Destination_Code not in (110, 16, 2, 1, 111, 121,4, 5, 6, 7, 15, 106, 107, 
-            109, 807, 806, 122, 14, 13, 12,18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 11, 
-            10, 3) then 1 end) Unknown,
-          count(case when Destination_Code in (110, 16, 2, 1, 111, 121) then 1 end) Homeless,
-          count(case when Destination_Code in (4, 5, 6, 7, 15, 106, 107, 109) then 1 end) Institutional,
-          count(case when Destination_Code in (807, 806, 122, 14, 13, 12) then 1 end) Temporary, 
-          count(case when Destination_Code in (18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 
-            11, 10, 3) then 1 end) Permanent
+          count(unique Program_Enrollment_Key) Leavers,
+          count(unique case when Destination_Code is null or Destination_Code in (8,9,17) then Program_Enrollment_Key end) Unknown,
+          count(unique case when Destination_Code in (110, 16, 2, 1, 111, 121) then Program_Enrollment_Key end) Homeless,
+          count(unique case when Destination_Code in (4, 5, 6, 7, 15, 106, 107, 109) then Program_Enrollment_Key end) Institutional,
+          count(unique case when Destination_Code in (807, 806, 122, 14, 13, 12) then Program_Enrollment_Key end) Temporary, 
+          count(unique case when Destination_Code in (18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 
+            11, 10, 3) then Program_Enrollment_Key end) Permanent
         FROM Program_Enrollment PE
         JOIN Program_Community_Information PCI
           on PE.Program_Key = PCI.Program_Key
@@ -126,18 +124,19 @@ shinyServer(function(input, output, session) {
         JOIN Program_Profile_Info PPI
           on PE.Program_Key = PPI.Program_Key
         WHERE
-        (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
+        Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') and
         Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
         finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),programTypesSelect() 
       ,sep=""))
     )
-    isolate(progress$close())
+    progress$close()
     if(input$mdkr==FALSE) {
       return(qResults_short)
     } 
     else {
       qResults_short$LEAVERS <- qResults_short$LEAVERS - qResults_short$UNKNOWN 
       qResults_short <- qResults_short[,!(names(qResults_short) %in% "UNKNOWN")]
+      return(qResults_short)
     }
   })
   
@@ -156,12 +155,10 @@ shinyServer(function(input, output, session) {
           PPI.Program_Key,
           Agency_Name,
           Program_Name,
-          count(PE.Program_Enrollment_Key) Leavers,
-          count(case when Destination_Code not in (110, 16, 2, 1, 111, 121,4, 5, 6, 7, 15, 106, 107, 
-            109, 807, 806, 122, 14, 13, 12,18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 11, 
-            10, 3) then 1 end) Unknown,
-          count(case when Destination_Code in (18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 
-            11, 10, 3) then 1 end) Permanent
+          count(unique Program_Enrollment_Key) Leavers,
+          count(unique case when Destination_Code is not null or Destination_Code in (8,9,17) then Program_Enrollment_Key end) Unknown,
+          count(unique case when Destination_Code in (18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 
+            11, 10, 3) then Program_Enrollment_Key end) Permanent
           
         FROM Program_Enrollment PE
           
@@ -175,7 +172,7 @@ shinyServer(function(input, output, session) {
           on PE.Program_Key = PPI.Program_Key
           
         WHERE
-        (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
+        Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') and
         Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
         finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),programTypesSelect(),"
         GROUP BY
@@ -204,18 +201,27 @@ shinyServer(function(input, output, session) {
   
   output$summaryTable <- renderDataTable({
     qResults_short()
-  },options=list(fnRowCallback = I('
-      function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-        // Column alignment
-        $("td:eq(1)", nRow).css("text-align", "right");
-        $("td:eq(2)", nRow).css("text-align", "right");
-        $("td:eq(3)", nRow).css("text-align", "right");
-        $("td:eq(4)", nRow).css("text-align", "right");
-        $("td:eq(5)", nRow).css("text-align", "right");
+  },options=list(
+      fnRowCallback = I('
+        function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+          // Column alignment
+          $("td:eq(1)", nRow).css("text-align", "right");
+          $("td:eq(2)", nRow).css("text-align", "right");
+          $("td:eq(3)", nRow).css("text-align", "right");
+          $("td:eq(4)", nRow).css("text-align", "right");
+          $("td:eq(5)", nRow).css("text-align", "right");
+        }
+      '),
+      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
+      if(input$mdkr==FALSE) {
+        aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
+          list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
       }
-    '),bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
-    aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-    list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE)))
+      else {
+        aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
+          list(bSearchable=FALSE),list(bSearchable=FALSE))
+      }
+    )
   )
   
   output$progsTable <- renderDataTable({
@@ -230,10 +236,14 @@ shinyServer(function(input, output, session) {
         }
       '),
       bAutoWidth=FALSE,bPaginate=0,bLengthChange=0,bInfo=0,iDisplayLength=500,
-      if(input$mdkr==FALSE) {aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-      list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))}
-      else {aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-      list(bSearchable=FALSE),list(bSearchable=FALSE))}
+      if(input$mdkr==FALSE) {
+        aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
+          list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
+      }
+      else {
+        aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
+          list(bSearchable=FALSE),list(bSearchable=FALSE))
+      }
     )
   )  
   
@@ -244,59 +254,71 @@ shinyServer(function(input, output, session) {
 
   # Create a reactive plot based on qResults_short()
   # Then make available for output into UI
-  output$destPlot <- renderPlot({
+  graphdata <- reactive({
     if(progCount2()==0) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
-    input$update            
-      # Transform qResults_short into a format acceptable for plotting
-      graphdata <- data.frame(
-        Destination = factor(c("Homeless","Institutional","Temporary","Permanent")),
-        Value = c(sum(qResults_short()[,"HOMELESS"]),sum(qResults_short()[,"INSTITUTIONAL"]),
-          sum(qResults_short()[,"TEMPORARY"]),sum(qResults_short()[,"PERMANENT"])),
-        color = c("firebrick2","darkorchid","royalblue2","green4")
+    # Transform qResults_short into a format acceptable for plotting
+    graphdata <- data.frame(
+      Destination = factor(c("Homeless","Institutional","Temporary","Permanent")),
+      Value = c(qResults_short()$HOMELESS,qResults_short()$INSTITUTIONAL,
+        qResults_short()$TEMPORARY,qResults_short()$PERMANENT),
+      color = c("firebrick2","darkorchid","royalblue2","green4")
+    )
+    if(input$mdkr==FALSE) {
+      UNKNOWN <- data.frame( 
+        Destination = "Unknown",
+        Value = qResults_short()$UNKNOWN,
+        color = "gray45"
       )
-      if(input$mdkr==FALSE) {
-        UNKNOWN <- data.frame( 
-          Destination = "Unknown",
-          Value = sum(qResults_short()[,"UNKNOWN"]),
-          color = "gray45"
-        )
-        graphdata <- rbind(UNKNOWN,graphdata)
-      }
-      progress <- Progress$new(session)
-      progress$set(message="Creating chart",detail="Please wait a moment...")
-      #Graph reactivity is invalidated unless update button is pressed   	
-      isolate(
-        print(
-          # Begin plotting with ggplot()
-          # Define variables
-          ggplot(data=graphdata, aes(x=factor(Destination,levels=Destination),y=Value)) +
-            # Define as bar chart
-            geom_bar(fill=graphdata$color,
-              color="black",stat="identity") + scale_fill_manual(values=graphdata$color,name="Destination") +
-            # Add text labels
-            geom_text(aes(label = paste(Value," (",round(100*Value/sum(Value),digits=1),"%)",sep=""),
-              size=10,vjust=-.5)) +
-            # Remove legend
-            theme(legend.position="none") +
-            # Define title
-              ggtitle(paste("Housing Outcomes for ", 
-                ifelse(input$reportLevel!="Program","Programs in ",
-                paste(input$agencySelect,": ",sep="")),
-                finalSelect_Text(),"\nReport Period: ",
-                substr(beginSelect(),6,7),"/",
-                substr(beginSelect(),9,10),"/",
-                substr(beginSelect(),1,4)," - ",
-                substr(endSelect(),6,7),"/",
-                substr(endSelect(),9,10),"/",
-                substr(endSelect(),1,4),sep="")) + 
-              # Define axis labels
-                xlab("Destination at Program Exit") + 
-                ylab("Number of Clients Who Exited")
-        )
+      graphdata <- rbind(UNKNOWN,graphdata)
+    }
+    return(graphdata)
+  })
+  destPlot <- reactive({
+    input$update 
+    graphdata()
+    #Graph reactivity is invalidated unless update button is pressed   
+    progress <- Progress$new(session)
+    progress$set(message="Creating chart",detail="Please wait a moment...")
+    isolate(
+      print(
+        # Begin plotting with ggplot()
+        # Define variables
+        ggplot(data=graphdata(), aes(x=factor(Destination,levels=Destination),y=Value)) +
+          # Define as bar chart
+          geom_bar(fill=graphdata()$color,color="black",stat="identity") + 
+          # Define bar coloers
+          scale_fill_manual(values=graphdata()$color,name="Destination") +
+          # Add text labels
+          geom_text(aes(label = paste(Value," (",round(100*Value/sum(Value),digits=1),"%)",sep=""),
+            size=10,vjust=-.5)) +
+          # Remove legend
+          theme(legend.position="none") +
+          # Define title
+            ggtitle(paste("Housing Outcomes for ", 
+              if(input$reportLevel!="Program") {
+                "Programs in "
+              }
+              else {
+                paste(input$agencySelect,": ",sep="")
+              },
+              finalSelect_Text(),"\nReport Period: ",
+              substr(beginSelect(),6,7),"/",
+              substr(beginSelect(),9,10),"/",
+              substr(beginSelect(),1,4)," - ",
+              substr(endSelect(),6,7),"/",
+              substr(endSelect(),9,10),"/",
+              substr(endSelect(),1,4),sep="")) + 
+          # Define axis labels
+            xlab("Destination at Program Exit") + 
+            ylab("Number of Clients Who Exited")
       )
+    )
     progress$close()
   }) 
+  output$destPlot <- renderPlot({
+    destPlot()  
+  })
   
   
   #################################
@@ -306,10 +328,9 @@ shinyServer(function(input, output, session) {
   output$mainPanel <- renderUI({
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    
     if (input$printable==TRUE) {
       #Reactivity is invalidated unless update button is pressed
-      isolate(mainPanel(
+      isolate(div(
         h2("OUTCOMES REPORT",align="center"), br(),
         (if(input$reportLevel=="Group") 
         {h3(input$groupSelect,align="center")}),
@@ -323,23 +344,34 @@ shinyServer(function(input, output, session) {
       ))
     }
     else {
-      div(
+      isolate(div(
         h4("Main Panel",align="center"),
-        tabsetPanel(
-          tabPanel("Summary",
-            div(downloadButton("downloadEnrolls","Download Enrollments"),align="right"),
-            dataTableOutput("summaryTable")
-          ),
-          if(input$reportLevel!="Program") {
+        if(input$reportLevel!="Program") {
+          tabsetPanel(
+            tabPanel("Summary",
+              div(downloadButton("downloadEnrolls","Download Enrollments"),align="right"),
+              dataTableOutput("summaryTable")
+            ),
             tabPanel("Programs",
               div(div(downloadButton("downloadProgs","Download Programs"),align="right"),br(),dataTableOutput("progsTable"))
+            ),
+            tabPanel("Plot",
+              plotOutput("destPlot")
             )
-          },
-          tabPanel("Plot",
-            plotOutput("destPlot")
           )
-        )
-      )
+        }
+        else {
+          tabsetPanel(
+            tabPanel("Summary",
+              div(downloadButton("downloadEnrolls","Download Enrollments"),align="right"),
+              dataTableOutput("summaryTable")
+            ),
+            tabPanel("Plot",
+              plotOutput("destPlot")
+            )
+          )
+        }
+      ))
     } 
   })
   
