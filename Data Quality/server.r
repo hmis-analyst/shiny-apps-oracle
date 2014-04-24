@@ -16,7 +16,7 @@ library(stringr)
 
 
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath="../../lib/ojdbc6.jar", " ")
+drv <- JDBC("oracle.jdbc.OracleDriver",classPath="~/GitHub/shiny-apps-oracle/lib/ojdbc6.jar", " ")
 source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
 
 # Create a function to modify date format
