@@ -15,7 +15,7 @@ shinyUI(basicPage(
     # SIDE PANEL
     column(4,
       wellPanel(
-        h3("Gender Demo Version",align="center"),
+        h3("Gender",align="center"),
         # Tab panels within side panel
         tabsetPanel(selected="Data Options",
           tabPanel("Instructions",
