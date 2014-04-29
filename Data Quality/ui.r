@@ -85,14 +85,14 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Data Quality"),
-            p(strong("Version:"),"2.2.0"),
-            p(strong("Date:"),"18 April 2014"),
+            p(strong("Version:"),"2.2.1"),
+            p(strong("Date:"),"29 April 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jsn.rgz@gmail.com","jsn.rgz@gmail.com")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Added passkey requirement for viewing client-level data')
+            p(' - Minor bug fixes')
           )
         )
       )

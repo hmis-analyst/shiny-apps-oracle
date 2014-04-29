@@ -239,7 +239,7 @@ shinyServer(function(input, output, session) {
           count(unique case when Name_First = 'MISSING' then Program_Enrollment_Key end) Name_F_M,
           count(unique case when Name_Last = 'MISSING' then Program_Enrollment_Key end) Name_L_M,
           count(unique case when not ID_Type = 1 then Program_Enrollment_Key end) SSN_M,
-          count(unique case when not DOB_Type = 1 or Date_of_Birth is null 
+          count(unique case when Date_of_Birth is null and not DOB_Type in (8,9)
             then Program_Enrollment_Key end) DOB_M,
           count(unique case when Race_Code is null then Program_Enrollment_Key end) Race_M,
           count(unique case when Ethnicity_Code is null then Program_Enrollment_Key end) Ethn_M,
