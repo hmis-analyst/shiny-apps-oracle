@@ -1,4 +1,4 @@
-# .libPaths("~/R/win-library/3.0")
+# .libPaths("~/R/win-library/3.1")
 # install.packages("devtools",repos="http://cran.rstudio.com/")
 # devtools::install_github("shiny-incubator", "rstudio")
 # install.packages("RJDBC",repos="http://cran.rstudio.com/")
@@ -14,10 +14,10 @@ library(ggplot2)
 library(reshape2)
 library(stringr)
 
+libPath <- "~/HMIS Data Analyst/lib/" #Location of connection key and passkeys
 
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath="~/GitHub/shiny-apps-oracle/lib/ojdbc6.jar", " ")
-source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
+source(paste(libPath,"connectionkey.r",sep=""),local=TRUE)
 
 # Create a function to modify date format
 dateMod <- function(x) {paste(substr(x,6,7),"/",substr(x,9,10),"/",substr(x,1,4),sep="")}
@@ -33,7 +33,7 @@ shinyServer(function(input, output, session) {
   # Passkey
   groupKeys <- reactive({
     input$update
-    isolate(source("~/HMIS Data Analyst/lib/passkeys.r",local=TRUE))
+    isolate(source(paste(libPath,"passkeys.r",sep=""),local=TRUE))
     if(length(groupKeys)!=0) {
       if(
         isolate(dbGetQuery(connection,paste("
