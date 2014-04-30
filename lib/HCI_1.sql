@@ -1,11 +1,11 @@
 /*
 Creates a table called HCI_1 that summarizes household information and links it to program enrollments.
 Contents: new household (hh) variables.
-  Num_Fam: number of hh members
-  Num_Child: number of children in hh
-  Num_Adult: number of adults in hh
-  Num_Teen_M: number of teenage males in hh
-  Num_Teen_F: number of teentage females in hh
+  Num_Fam: Number of hh members
+  Num_Child: Number of children in hh
+  Num_Adult: Number of adults in hh
+  Num_Teen_M: Number of teenage males in hh
+  Num_Teen_F: Number of teentage females in hh
   Head_Num: Number of head of hh
   Head_Age: The age of the oldest head of hh
   Fem_Head: Number of female head of hh
