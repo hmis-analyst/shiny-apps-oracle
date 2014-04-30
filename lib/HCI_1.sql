@@ -12,6 +12,7 @@ Contents: new household (hh) variables.
   Oldest_Age: Age of the oldest hh member
   Oldest_Fem_Age: Age of the oldest female hh member
   Oldest_DoB: Oldest hh member's date of birth
+Each of these variables can be called in the main SELECT clause that the JOIN is attached to.
 */
 LEFT JOIN (
 	SELECT 
