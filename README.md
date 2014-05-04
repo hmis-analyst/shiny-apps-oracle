@@ -23,7 +23,7 @@ General Usage Notes
 
 Installation Notes for Contributors
 -------------------------------------------
-- The HMIS Data Analyst GitHub project requires local installations of R version 3.1.0, various R packages, a JDBC driver, and a keyfile. Windows users can receive a setup file that installs all these components at once. Please contact <a href mailto:dave.totten@dca.ga.gov>Dave</a> or <a href mailto:jason.m.rodriguez@vanderbilt.edu>Jason</a> for further guidance.
+- The HMIS Data Analyst GitHub project requires local installations of R version 3.1.0, various R packages, a JDBC driver, and a keyfile. Windows users can receive a setup file that installs all these components at once. Please contact <a href=mailto:dave.totten@dca.ga.gov>Dave</a> or <a href=mailto:jason.m.rodriguez@vanderbilt.edu>Jason</a> for further guidance.
 
 First Oracle, Then MySQL
 -------------------------
