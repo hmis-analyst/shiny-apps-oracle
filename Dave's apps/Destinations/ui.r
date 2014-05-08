@@ -16,7 +16,7 @@ shinyUI(basicPage(
   fluidRow(
     column(4,
       tags$form(class="well noprint",
-        h3("Housing Destinations (Dave version)",align="center"),
+        h3("Housing Destinations (Dave version 1.0)",align="center"),
         tabsetPanel(selected="Data Options",
           tabPanel("Instructions",
             p('1. FIRST select your data options.'),
