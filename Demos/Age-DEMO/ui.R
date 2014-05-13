@@ -1,13 +1,17 @@
+#
+#  Age Demo ui.r
+#
 # Load shiny and RODBC packages
 library(shinyIncubator)
 library(RJDBC)
 
-libPath <- "../../lib/"
+
+libPath1 <- "~/HMIS Data Analyst/lib/"
+libPath2 <- "../../lib/"
 
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath=paste(libPath,"ojdbc6.jar",sep=""), " ")
-source(paste("~/HMIS Data Analyst/lib/","connectionkey.r",sep=""),local=TRUE)
-#source(paste(libPath,"connectionkey.r",sep=""),local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
+
 
 # Define UI for HMIS age trends application
 shinyUI(basicPage(
@@ -29,12 +33,13 @@ shinyUI(basicPage(
             # Require user to click "ANALYZE" button in order for graph to update
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
             # Import "Data Options" ui code
-            source(paste(libPath,"Data Options DEMO.ui.r",sep=""),local=TRUE)
+            source(paste(libPath2,"DataOptions-Ora-DEMO.ui.r",sep=""), local=TRUE)
+
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Demographics - Age DEMO"),
-            p(strong("Version:"),"1.0.0"),
-            p(strong("Date:"),"06 May 2014"),
+            p(strong("Version:"),"1.0.01"),
+            p(strong("Date:"),"13 May 2014"),
             p(strong("Description:"),"Demonstration application for age demographic analysis"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jsn.rgz@gmail.com","jsn.rgz@gmail.com")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demo/Age-Demo","GitHub"))),

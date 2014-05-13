@@ -7,12 +7,12 @@ library(RJDBC)
 library(ggplot2)
 library(stringr)
 
-libPath <- "../../lib/"
+libPath1 <- "~/HMIS Data Analyst/lib/"
+libPath2 <- "../../lib/"
 
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath=paste(libPath,"ojdbc6.jar",sep=""), " ")
-source(paste("~/HMIS Data Analyst/lib/","connectionkey.r",sep=""),local=TRUE)
-#source(paste(libPath,"connectionkey.r",sep=""),local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
+
 
 # Define server logic required to query/graph HMIS age data
 shinyServer(function(input, output, session) {
@@ -46,8 +46,10 @@ shinyServer(function(input, output, session) {
       ,sep=""))[[1]]
     )
   })
+  
   # Import Data Options server code
-  source(paste(libPath,"Data Options DEMO.server.r",sep=""), local=TRUE)
+  source(paste(libPath2,"DataOptions-Ora-DEMO.server.r",sep=""), local=TRUE)
+
   
   
   #################################
@@ -162,7 +164,7 @@ graphData <- data.frame(Gender = c(
 		    # Define title
           ggtitle(paste("Age Breakdown for ", ifelse(input$reportLevel!="Program","Programs in ",paste(input$agencySelect,": ",sep="")),
             finalSelect_Text(),
-##            "\nWhere ",finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),
+            "\nWhere ",finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),Sys.getenv("HOME"),
             "\nReport Period: ",substr(beginSelect(),6,7),"/",substr(beginSelect(),9,10),"/",
             substr(beginSelect(),1,4)," - ",substr(endSelect(),6,7),"/",substr(endSelect(),9,10),"/",
             substr(endSelect(),1,4),sep="")) + 
