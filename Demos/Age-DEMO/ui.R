@@ -1,5 +1,5 @@
 #
-#  Age Demo ui.r
+#  Age Demo ui.r 
 #
 # Load shiny and RODBC packages
 library(shinyIncubator)
@@ -38,7 +38,7 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Demographics - Age DEMO"),
-            p(strong("Version:"),"1.0.01"),
+            p(strong("Version:"),"1.0.02"),
             p(strong("Date:"),"13 May 2014"),
             p(strong("Description:"),"Demonstration application for age demographic analysis"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jsn.rgz@gmail.com","jsn.rgz@gmail.com")),
