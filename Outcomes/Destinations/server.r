@@ -109,13 +109,13 @@ shinyServer(function(input, output, session) {
       # Query gender breakdown  based on user selections    
       qResults_short <- dbGetQuery(connection,paste("
         SELECT 
-          count(unique Program_Enrollment_Key) Leavers,
           count(unique case when Destination_Code is null or Destination_Code in (8,9,17) then Program_Enrollment_Key end) Unknown,
           count(unique case when Destination_Code in (110, 16, 2, 1, 111, 121) then Program_Enrollment_Key end) Homeless,
           count(unique case when Destination_Code in (4, 5, 6, 7, 15, 106, 107, 109) then Program_Enrollment_Key end) Institutional,
           count(unique case when Destination_Code in (807, 806, 122, 14, 13, 12) then Program_Enrollment_Key end) Temporary, 
           count(unique case when Destination_Code in (18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 
-            11, 10, 3) then Program_Enrollment_Key end) Permanent
+            11, 10, 3) then Program_Enrollment_Key end) Permanent,
+          count(unique Program_Enrollment_Key) Leavers
         FROM Program_Enrollment PE
         JOIN Program_Community_Information PCI
           on PE.Program_Key = PCI.Program_Key
@@ -130,13 +130,17 @@ shinyServer(function(input, output, session) {
       ,sep=""))
     )
     progress$close()
+    qResults_short_2 <- data.frame(
+      DESTINATION = c("Unknown","Homeless","Institutional","Temporary","Permanent","TOTAL"),
+      LEAVERS = c(qResults_short[1,1],qResults_short[1,2],qResults_short[1,3],qResults_short[1,4],qResults_short[1,5],qResults_short[1,6])
+    )
     if(input$mdkr==FALSE) {
-      return(qResults_short)
+      return(qResults_short_2)
     } 
     else {
-      qResults_short$LEAVERS <- qResults_short$LEAVERS - qResults_short$UNKNOWN 
-      qResults_short <- qResults_short[,!(names(qResults_short) %in% "UNKNOWN")]
-      return(qResults_short)
+      qResults_short_2[6,2] <- qResults_short_2[6,2] - qResults_short_2[1,2]
+      qResults_short_2 <- qResults_short_2[2:6,]
+      return(qResults_short_2)
     }
   })
   
@@ -156,7 +160,7 @@ shinyServer(function(input, output, session) {
           Agency_Name,
           Program_Name,
           count(unique Program_Enrollment_Key) Leavers,
-          count(unique case when Destination_Code is not null or Destination_Code in (8,9,17) then Program_Enrollment_Key end) Unknown,
+          count(unique case when Destination_Code is null or Destination_Code in (8,9,17) then Program_Enrollment_Key end) Unknown,
           count(unique case when Destination_Code in (18, 120, 119, 117, 118, 116, 113, 23, 22, 21, 20, 19, 
             11, 10, 3) then Program_Enrollment_Key end) Permanent
           
@@ -205,22 +209,12 @@ shinyServer(function(input, output, session) {
       fnRowCallback = I('
         function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
           // Column alignment
-          $("td:eq(1)", nRow).css("text-align", "right");
+          $("td:eq(1)", nRow).css("text-align", "left");
           $("td:eq(2)", nRow).css("text-align", "right");
-          $("td:eq(3)", nRow).css("text-align", "right");
-          $("td:eq(4)", nRow).css("text-align", "right");
-          $("td:eq(5)", nRow).css("text-align", "right");
         }
       '),
       bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
-      if(input$mdkr==FALSE) {
-        aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-          list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
-      }
-      else {
-        aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-          list(bSearchable=FALSE),list(bSearchable=FALSE))
-      }
+        aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE))
     )
   )
   
@@ -258,20 +252,17 @@ shinyServer(function(input, output, session) {
     if(progCount2()==0) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     # Transform qResults_short into a format acceptable for plotting
-    graphdata <- data.frame(
-      Destination = factor(c("Homeless","Institutional","Temporary","Permanent")),
-      Value = c(qResults_short()$HOMELESS,qResults_short()$INSTITUTIONAL,
-        qResults_short()$TEMPORARY,qResults_short()$PERMANENT),
-      color = c("firebrick2","darkorchid","royalblue2","green4")
-    )
+    graphdata <- qResults_short()[which(!(qResults_short()$DESTINATION %in% c("Unknown","TOTAL"))),]
+    graphdata$color <- c("firebrick2","darkorchid","royalblue2","green4")
     if(input$mdkr==FALSE) {
       UNKNOWN <- data.frame( 
-        Destination = "Unknown",
-        Value = qResults_short()$UNKNOWN,
+        DESTINATION = "Unknown",
+        LEAVERS = qResults_short()[1,2],
         color = "gray45"
       )
       graphdata <- rbind(UNKNOWN,graphdata)
     }
+    names(graphdata) <- c("Destination","Value","color")
     return(graphdata)
   })
   destPlot <- reactive({

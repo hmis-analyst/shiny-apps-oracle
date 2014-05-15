@@ -78,7 +78,7 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Housing Destinations"),
-            p(strong("Version:"),"2.0.0"),
+            p(strong("Version:"),"2.1.0"),
             p(strong("Date:"),"9 April 2014"),
             p(strong("Author:"),"Jason Rodriguez (Georgia Department of Community Affairs)"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
@@ -88,7 +88,7 @@ shinyUI(basicPage(
               "https://github.com/jrodri30/HMIS/tree/master/Housing Outcomes")
             ),
             p(strong('Changes since last version:')),
-            p(' - Overhauled to look more like Data Quality app'),
+            p(' - Changed format of summary table'),
             p(' - Minor bug fixes')
           )
         )
