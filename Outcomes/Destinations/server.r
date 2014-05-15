@@ -11,9 +11,11 @@ library(ggplot2)
 library(reshape2)
 library(stringr)
 
+libPath1 <- "~/HMIS Data Analyst/lib/"
+libPath2 <- "../../lib/"
+
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath="~/GitHub/shiny-apps-oracle/lib/ojdbc6.jar", " ")
-source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
 # Create a function to modify date format
 dateMod <- function(x) {paste(substr(x,6,7),"/",substr(x,9,10),"/",substr(x,1,4),sep="")}
@@ -49,7 +51,7 @@ shinyServer(function(input, output, session) {
     )
   })
   # Import Data Options server code
-  source("../../lib/Data Options.server.r", local=TRUE)
+  source(paste(libPath2,"DataOptions-Ora-DEMO.server.r",sep=""), local=TRUE)
 
   
   #################################

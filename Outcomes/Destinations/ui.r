@@ -5,10 +5,11 @@
 library(shinyIncubator)
 library(RJDBC)
 
+libPath1 <- "~/HMIS Data Analyst/lib/"
+libPath2 <- "../../lib/"
 
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath="~/GitHub/shiny-apps-oracle/lib/ojdbc6.jar", " ")
-source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
 shinyUI(basicPage(
   progressInit(),
@@ -28,49 +29,8 @@ shinyUI(basicPage(
           ),
           tabPanel("Data Options",
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
-            # Display date range input with default values
-            dateRangeInput("daterange","Date range", format='mm/dd/yyyy',start="2013-07-01",max=Sys.Date()),
-            br(),
-            # Display radio buttons with 3 defined report levels
-            radioButtons("reportLevel", "Report level",list("Group","Agency","Program"),selected="Program"),
-            br(),
-            # Display "Group Name" select list when user chooses "Group" report level
-            conditionalPanel(
-              # Define condition of this display
-              condition = "input.reportLevel == 'Group'",
-              # Query Pathways group names to populate select list
-              selectInput("groupSelect", "Group name",as.list(as.character(
-                dbGetQuery(connection,"
-                  SELECT unique Group_Name 
-                  FROM Community_Group_Information
-                  ORDER BY Group_Name"
-                )[[1]]
-              )))
-            ),
-            # Display "Agency Name" select list when user chooses "Agency" or "Program" report levels
-            conditionalPanel(
-              # Define condition of this display
-              condition = "input.reportLevel == 'Agency' | input.reportLevel == 'Program'",
-              # Query agency names to populate select list
-              selectInput("agencySelect", "Agency name",as.list(as.character(
-                dbGetQuery(connection,"
-                  SELECT unique Agency_Name 
-                  FROM Program_Profile_Info
-                  ORDER BY Agency_Name"
-                )[[1]]
-              )))
-            ),
-            # Display "Program Name" select list when user chooses "Program" report level
-            conditionalPanel(
-              # Define condition of this display
-              condition = "input.reportLevel == 'Program'",
-              # Call "programChoices" (reactive select list, defined in server.R)
-              # Display on sidebar
-              uiOutput("programChoices")
-            ),
-            br(),
-            uiOutput("programTypes"),
-            br(),br(),br(),br(),br(),br(), br()
+            # Import "Data Options" ui code
+            source(paste(libPath2,"DataOptions-Ora-DEMO.ui.r",sep=""), local=TRUE)
           ),
           tabPanel("Viewing Options",
             checkboxInput("printable", "Printable", FALSE),
