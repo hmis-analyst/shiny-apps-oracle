@@ -42,7 +42,7 @@ shinyUI(basicPage(
             p(strong("Date:"),"13 May 2014"),
             p(strong("Description:"),"Demonstration application for age demographic analysis"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jsn.rgz@gmail.com","jsn.rgz@gmail.com")),
-            p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demo/Age-Demo","GitHub"))),
+            p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demos/Age-DEMO","GitHub"))),
             p(strong('Changes since last version:')),
             p(' - Initial Version')
           )
