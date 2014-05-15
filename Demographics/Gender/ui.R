@@ -2,10 +2,11 @@
 library(shinyIncubator)
 library(RJDBC)
 
+libPath1 <- "~/HMIS Data Analyst/lib/"
+libPath2 <- "../../lib/"
 
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath="~/GitHub/shiny-apps-oracle/lib/ojdbc6.jar", " ")
-source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
 # Define UI for HMIS gender trends application
 shinyUI(basicPage(
@@ -27,7 +28,7 @@ shinyUI(basicPage(
             # Require user to click "ANALYZE" button in order for graph to update
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
             # Import "Data Options" ui code
-            source("../../lib/Data Options.ui.r",local=TRUE)
+            source(paste(libPath2,"DataOptions-Ora.ui.r",sep=""), local=TRUE)
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Demographics - Gender"),

@@ -4,14 +4,15 @@ library(RJDBC)
 library(ggplot2)
 library(stringr)
 
+libPath1 <- "~/HMIS Data Analyst/lib/"
+libPath2 <- "../../lib/"
+
 # Establish JDBC connection using RJDBC
-drv <- JDBC("oracle.jdbc.OracleDriver",classPath="~/GitHub/shiny-apps-oracle/lib/ojdbc6.jar", " ")
-source("~/HMIS Data Analyst/lib/connectionkey.r",local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
 # Define server logic required to query/graph HMIS gender data
 shinyServer(function(input, output, session) {
 
-  
   #################################
   # USER SELECTIONS
   #################################
@@ -41,7 +42,7 @@ shinyServer(function(input, output, session) {
     )
   })
   # Import Data Options server code
-  source("../../lib/Data Options.server.r", local=TRUE)
+            source(paste(libPath2,"DataOptions-Ora.server.r",sep=""), local=TRUE)
   
   
   #################################

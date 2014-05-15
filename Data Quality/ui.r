@@ -8,10 +8,10 @@ library(shinyIncubator)
 #library(shiny)
 library(RJDBC)
 
-libPath <- "~/HMIS Data Analyst/lib/" #Location of connection key and passkeys
+libPath1 <- "~/HMIS Data Analyst/lib/"
 
 # Establish JDBC connection using RJDBC
-source(paste(libPath,"connectionkey.r",sep=""),local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
 shinyUI(basicPage(
   progressInit(),

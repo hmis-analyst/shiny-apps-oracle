@@ -30,7 +30,7 @@ shinyUI(basicPage(
           tabPanel("Data Options",
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
             # Import "Data Options" ui code
-            source(paste(libPath2,"DataOptions-Ora-DEMO.ui.r",sep=""), local=TRUE)
+            source(paste(libPath2,"DataOptions-Ora.ui.r",sep=""), local=TRUE)
           ),
           tabPanel("Viewing Options",
             checkboxInput("printable", "Printable", FALSE),

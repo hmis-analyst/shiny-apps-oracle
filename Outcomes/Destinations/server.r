@@ -51,7 +51,7 @@ shinyServer(function(input, output, session) {
     )
   })
   # Import Data Options server code
-  source(paste(libPath2,"DataOptions-Ora-DEMO.server.r",sep=""), local=TRUE)
+  source(paste(libPath2,"DataOptions-Ora.server.r",sep=""), local=TRUE)
 
   
   #################################
