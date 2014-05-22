@@ -139,7 +139,7 @@ shinyServer(function(input, output, session) {
             then Program_Enrollment_Key end) Ben_N_M,
           count(unique case when CNB_X.Verified_Answer is null and 
             Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
-            then Program_Enrollment_Key end) Ben_N_M,
+            then Program_Enrollment_Key end) Ben_X_M,
           count(unique case when Physical_Disability is null 
             then Program_Enrollment_Key end) Disab_P_M,
           count(unique case when Developmental_Disability is null 
