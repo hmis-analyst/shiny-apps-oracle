@@ -10,6 +10,7 @@ library(RJDBC)
 library(ggplot2)
 library(reshape2)
 library(stringr)
+library(plyr)
 #-------------------
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
