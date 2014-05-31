@@ -104,7 +104,7 @@ shinyUI(basicPage(
             ),
             p(strong('Changes since last version:')),
             p(' - Added analysis for PSH and RRH programs'),
-            p('- Tweaked the algorithm')
+            p('- Tweaked the algorithm'),
             p(' - Minor bug fixes')
           )
         )
