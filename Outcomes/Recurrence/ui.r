@@ -17,11 +17,12 @@ Sys.Day <- as.numeric(format(Sys.Date()-1,"%d"))
 
 shinyUI(basicPage(
   progressInit(),
+  includeHTML("lib/page.html"),
   br(),
   fluidRow(
     column(4,
       tags$form(class="well noprint",
-        h3("Homelessness Recidivism",align="center"),
+        h3("Homelessness Recurrence",align="center"),
         tabsetPanel(selected="Data Options",
           tabPanel("Instructions",
             p('1. FIRST select your data options.'),
@@ -30,7 +31,7 @@ shinyUI(basicPage(
                also be able to download your data as a spreadsheet.'),
             p('4. If you are not satisfied with the appearance of the report, 
                you can modify the viewing options.'),
-            p('5. If you would like to increase the recidivism window, move the report end date further back. Do the opposite to decrease the recidivism window.')
+            p('5. If you would like to increase the recurrence window, move the report end date further back. Do the opposite to decrease the recurrence window.')
           ),
           tabPanel("Data Options",
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
@@ -89,20 +90,21 @@ shinyUI(basicPage(
             checkboxInput("printable", "Printable", FALSE)
           ),
           tabPanel("About",
-            p(strong("Title:"),"Georgia HMIS Homelessness Recidivism"),
-            p(strong("Version:"),"1.0.0"),
-            p(strong("Date:"),"22 May 2014"),
-            p(strong("Description:"),"Set of customizable reports and charts on recidivism, for the purpose of reporting
+            p(strong("Title:"),"Georgia HMIS Homelessness Recurrence"),
+            p(strong("Version:"),"1.1.0"),
+            p(strong("Date:"),"30 May 2014"),
+            p(strong("Description:"),"Set of customizable reports and charts on recurrence, for the purpose of reporting
               and improving program outcomes among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
-            p(strong("Source code:"),a(href="https://github.com/jrodri30/HMIS/tree/master/Outcomes/Recidivism",
-              "https://github.com/jrodri30/HMIS/tree/master/Outcomes/Recidivism")
+            p(strong("Source code:"),a(href="https://github.com/jrodri30/HMIS/tree/master/Outcomes/Recurrence",
+              "https://github.com/jrodri30/HMIS/tree/master/Outcomes/Recurrence")
             ),
-            p(strong("Recidivism wiki:"),a(href="https://github.com/hmis-analyst/shiny-apps-oracle/wiki/Recidivism-(for-ES-and-TH-programs)",
+            p(strong("Recurrence wiki:"),a(href="https://github.com/hmis-analyst/shiny-apps-oracle/wiki/Recurrence-(for-ES-and-TH-programs)",
               "ES and TH programs")
             ),
             p(strong('Changes since last version:')),
-            p(' - Overhauled to look more like Data Quality app'),
+            p(' - Added analysis for PSH and RRH programs'),
+            p('- Tweaked the algorithm')
             p(' - Minor bug fixes')
           )
         )
