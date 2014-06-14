@@ -1,3 +1,7 @@
+# TITLE: HOMELESSNESS RECURRENCE
+#------------------------------------
+#------------------------------------
+
 #.libPaths("~/R/win-library/3.1")
 #install.packages("RJDBC",repos="http://cran.rstudio.com/")
 
@@ -91,20 +95,19 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Homelessness Recurrence"),
-            p(strong("Version:"),"1.1.0"),
-            p(strong("Date:"),"30 May 2014"),
+            p(strong("Version:"),"1.2.0"),
+            p(strong("Date:"),"14 June 2014"),
             p(strong("Description:"),"Set of customizable reports and charts on recurrence, for the purpose of reporting
               and improving program outcomes among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
-            p(strong("Source code:"),a(href="https://github.com/jrodri30/HMIS/tree/master/Outcomes/Recurrence",
-              "https://github.com/jrodri30/HMIS/tree/master/Outcomes/Recurrence")
+            p(strong("Source code:"),"See ",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Outcomes/Recurrence", target="_blank",
+              "Github")
             ),
-            p(strong("Recurrence wiki:"),a(href="https://github.com/hmis-analyst/shiny-apps-oracle/wiki/Recurrence-(for-ES-and-TH-programs)",
-              "ES and TH programs")
+            p(strong("Documentation:"),a(href="https://github.com/hmis-analyst/shiny-apps-oracle/wiki/Homelessness-Recurrence", target="_blank",
+              "wiki")
             ),
             p(strong('Changes since last version:')),
-            p(' - Added analysis for PSH and RRH programs'),
-            p('- Tweaked the algorithm'),
+            p(' - Minor tweaks to the algorithm'),
             p(' - Minor bug fixes')
           )
         )
