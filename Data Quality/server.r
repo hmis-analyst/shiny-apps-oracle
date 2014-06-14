@@ -117,7 +117,7 @@ shinyServer(function(input, output, session) {
             then Program_Enrollment_Key end) Leavers,
           count(unique case when Name_First = 'MISSING' then Program_Enrollment_Key end) Name_F_M,
           count(unique case when Name_Last = 'MISSING' then Program_Enrollment_Key end) Name_L_M,
-          count(unique case when not ID_Type = 1 then Program_Enrollment_Key end) SSN_M,
+          count(unique case when not ID_Type in (1,8,9) then Program_Enrollment_Key end) SSN_M,
           count(unique case when Date_of_Birth is null and not DOB_Type in (8,9)
             then Program_Enrollment_Key end) DOB_M,
           count(unique case when Race_Code is null then Program_Enrollment_Key end) Race_M,
@@ -325,7 +325,7 @@ shinyServer(function(input, output, session) {
               CI.Client_Key,
               case when Name_First = 'MISSING' then CI.Client_Key end FN_M,
               case when Name_Last = 'MISSING' then CI.Client_Key end LN_M,
-              case when not ID_Type = 1 then CI.Client_Key end ID_M,
+              case when not ID_Type in (1,8,9) then CI.Client_Key end ID_M,
               case when Date_of_Birth is null and not DOB_Type in (8,9) then CI.Client_Key end DOB_M,
               case when Race_Code is null then CI.Client_Key end Race_M,
               case when Ethnicity_Code is null then CI.Client_Key end Ethn_M,
