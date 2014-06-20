@@ -86,8 +86,8 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Data Quality"),
-            p(strong("Version:"),"2.2.2"),
-            p(strong("Date:"),"10 June 2014"),
+            p(strong("Version:"),"2.2.3"),
+            p(strong("Date:"),"20 June 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),

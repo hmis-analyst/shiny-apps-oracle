@@ -1,4 +1,4 @@
-# .libPaths("~/R/win-library/3.1")
+.libPaths("~/R/win-library/3.1")
 # install.packages("devtools",repos="http://cran.rstudio.com/")
 # devtools::install_github("shiny-incubator", "rstudio")
 # install.packages("RJDBC",repos="http://cran.rstudio.com/")
@@ -109,9 +109,9 @@ shinyServer(function(input, output, session) {
           Program_Name,
           count(unique PE.Program_Enrollment_Key) Enrolls,
           count(unique PE.Client_Key) Clients,
-          count(unique case when Program_Entry_Date - Date_of_Birth > 18 
+          count(unique case when (Program_Entry_Date - Date_of_Birth)/365.25 >= 18 
             then Program_Enrollment_Key end) Adults,
-          count(unique case when Unaccompanied_Child = 'Yes' 
+          count(unique case when HH_Members=1 and (Program_Entry_Date - Date_of_Birth)/365.25 < 18 
             then Program_Enrollment_Key end) UnaChild,
           count(unique case when Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
             then Program_Enrollment_Key end) Leavers,
@@ -140,16 +140,16 @@ shinyServer(function(input, output, session) {
           count(unique case when CNB_X.Verified_Answer is null and 
             Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
             then Program_Enrollment_Key end) Ben_X_M,
-          count(unique case when Physical_Disability is null 
+          count(unique case when CSNI.Missing>0
             then Program_Enrollment_Key end) Disab_P_M,
-          count(unique case when Developmental_Disability is null 
+          count(unique case when CSNI.Missing>0
             then Program_Enrollment_Key end) Disab_D_M,
-          count(unique case when Chronic_Health_Condition is null 
+          count(unique case when CSNI.Missing>0
             then Program_Enrollment_Key end) Disab_C_M,
-          count(unique case when HIV_AIDS is null then Program_Enrollment_Key end) Disab_H_M,
-          count(unique case when Mental_Illness is null then Program_Enrollment_Key end) Disab_M_M,
-          count(unique case when Substance_Abuse is null then Program_Enrollment_Key end) Disab_S_M,
-          count(unique case when Dom_Vio_Survivor is null then Program_Enrollment_Key end) Disab_DV_M,
+          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_H_M,
+          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_M_M,
+          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_S_M,
+          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_DV_M,
           count(unique case when Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and 
             Destination_Code is null then Program_Enrollment_Key end) Dest_M,
           count(unique case when ID_Type in (8,9) then Program_Enrollment_Key end) SSN_DKR,
@@ -206,9 +206,18 @@ shinyServer(function(input, output, session) {
         LEFT JOIN Client_Noncash_Benefits CNB_X
           on PE.Exit_Noncash_Key = CNB_X.Noncash_GK
         LEFT JOIN (
+            SELECT 
+              Household_Key,
+              count(Household_Key) HH_Members
+            FROM Household_Client_Info HCI 
+            GROUP BY Household_Key
+        ) HCI
+          on PE.Household_Key = HCI.Household_Key
+        LEFT JOIN (
           SELECT 
             Program_Enrollment_Key, 
             Collect_Stage, 
+            sum(case when Group_Key is null then 1 else 0 end) Missing,
             sum(Physical_Disability) Physical_Disability, 
             sum(Developmental_Disability) Developmental_Disability, 
             sum(Chronic_Health_Condition) Chronic_Health_Condition, 
@@ -217,6 +226,7 @@ shinyServer(function(input, output, session) {
             sum(Substance_Abuse) Substance_Abuse, 
             sum(Dom_Vio_Survivor) Dom_Vio_Survivor 
           FROM Client_Special_Needs_Info 
+          WHERE Collect_Stage=1
           GROUP BY 
             Program_Enrollment_Key, 
             Collect_Stage
