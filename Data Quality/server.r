@@ -352,13 +352,13 @@ shinyServer(function(input, output, session) {
               case when CNB_N.Verified_Answer is null then PE.Program_Enrollment_Key end CNB_N_M,
               case when CNB_X.Verified_Answer is null and Program_Exit_Date is not null 
                 then PE.Program_Enrollment_Key end CNB_X_M,
-              case when Physical_Disability is null then PE.Program_Enrollment_Key end PD_M,
-              case when Developmental_Disability is null then PE.Program_Enrollment_Key end DD_M,
-              case when Chronic_Health_Condition is null then PE.Program_Enrollment_Key end CHC_M,
-              case when HIV_AIDS is null then PE.Program_Enrollment_Key end HIV_M,
-              case when Mental_Illness is null then PE.Program_Enrollment_Key end MH_M,
-              case when Substance_Abuse is null then PE.Program_Enrollment_Key end SA_M,
-              case when Dom_Vio_Survivor is null then PE.Program_Enrollment_Key end DV_M,
+              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end PD_M,
+              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end DD_M,
+              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end CHC_M,
+              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end HIV_M,
+              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end MH_M,
+              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end SA_M,
+              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end DV_M,
               case when Destination_Code is null and Program_Exit_Date is not null 
                 then PE.Program_Enrollment_Key end Dest_M,
               case when ID_Type in (8,9) then CI.Client_Key end ID_DKR,
@@ -410,6 +410,7 @@ shinyServer(function(input, output, session) {
               SELECT 
                 Program_Enrollment_Key, 
                 Collect_Stage, 
+                sum(case when Group_Key is null then 1 else 0 end) Missing,
                 sum(Physical_Disability) Physical_Disability, 
                 sum(Developmental_Disability) Developmental_Disability, 
                 sum(Chronic_Health_Condition) Chronic_Health_Condition, 
