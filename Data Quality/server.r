@@ -117,7 +117,7 @@ shinyServer(function(input, output, session) {
             then Program_Enrollment_Key end) Leavers,
           count(unique case when Name_First = 'MISSING' then Program_Enrollment_Key end) Name_F_M,
           count(unique case when Name_Last = 'MISSING' then Program_Enrollment_Key end) Name_L_M,
-          count(unique case when not ID_Type in (1,8,9) then Program_Enrollment_Key end) SSN_M,
+          count(unique case when ID_Type is null then Program_Enrollment_Key end) SSN_M,
           count(unique case when Date_of_Birth is null and not DOB_Type in (8,9)
             then Program_Enrollment_Key end) DOB_M,
           count(unique case when Race_Code is null then Program_Enrollment_Key end) Race_M,
@@ -140,19 +140,16 @@ shinyServer(function(input, output, session) {
           count(unique case when CNB_X.Verified_Answer is null and 
             Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
             then Program_Enrollment_Key end) Ben_X_M,
-          count(unique case when CSNI.Missing>0
-            then Program_Enrollment_Key end) Disab_P_M,
-          count(unique case when CSNI.Missing>0
-            then Program_Enrollment_Key end) Disab_D_M,
-          count(unique case when CSNI.Missing>0
-            then Program_Enrollment_Key end) Disab_C_M,
-          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_H_M,
-          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_M_M,
-          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_S_M,
-          count(unique case when CSNI.Missing>0 then Program_Enrollment_Key end) Disab_DV_M,
+          count(unique case when Physical_Disability is null then Program_Enrollment_Key end) Disab_P_M,
+          count(unique case when Developmental_Disability is null then Program_Enrollment_Key end) Disab_D_M,
+          count(unique case when Chronic_Health_Condition is null then Program_Enrollment_Key end) Disab_C_M,
+          count(unique case when HIV_AIDS is null then Program_Enrollment_Key end) Disab_H_M,
+          count(unique case when Mental_Illness is null then Program_Enrollment_Key end) Disab_M_M,
+          count(unique case when Substance_Abuse is null then Program_Enrollment_Key end) Disab_S_M,
+          count(unique case when Dom_Vio_Survivor is null then Program_Enrollment_Key end) Disab_DV_M,
           count(unique case when Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and 
             Destination_Code is null then Program_Enrollment_Key end) Dest_M,
-          count(unique case when ID_Type in (8,9) then Program_Enrollment_Key end) SSN_DKR,
+          count(unique case when ID_Type in (2,3,4,8,9) then Program_Enrollment_Key end) SSN_DKR,
           count(unique case when DOB_Type in (8,9)then Program_Enrollment_Key end) DOB_DKR,
           count(unique case when Race_Code in (15,16) then Program_Enrollment_Key end) Race_DKR,
           count(unique case when Ethnicity_Code in (8,9) then Program_Enrollment_Key end) Ethn_DKR,
@@ -214,22 +211,9 @@ shinyServer(function(input, output, session) {
         ) HCI
           on PE.Household_Key = HCI.Household_Key
         LEFT JOIN (
-          SELECT 
-            Program_Enrollment_Key, 
-            Collect_Stage, 
-            sum(case when Group_Key is null then 1 else 0 end) Missing,
-            sum(Physical_Disability) Physical_Disability, 
-            sum(Developmental_Disability) Developmental_Disability, 
-            sum(Chronic_Health_Condition) Chronic_Health_Condition, 
-            sum(HIV_AIDS) HIV_AIDS, 
-            sum(Mental_Illness) Mental_Illness, 
-            sum(Substance_Abuse) Substance_Abuse, 
-            sum(Dom_Vio_Survivor) Dom_Vio_Survivor 
+          SELECT *
           FROM Client_Special_Needs_Info 
-          WHERE Collect_Stage=1
-          GROUP BY 
-            Program_Enrollment_Key, 
-            Collect_Stage
+          WHERE Collect_Stage=1 and Group_Key is not null
         ) CSNI
           on PE.Program_Enrollment_Key = CSNI.Program_Enrollment_Key
         WHERE
@@ -352,13 +336,13 @@ shinyServer(function(input, output, session) {
               case when CNB_N.Verified_Answer is null then PE.Program_Enrollment_Key end CNB_N_M,
               case when CNB_X.Verified_Answer is null and Program_Exit_Date is not null 
                 then PE.Program_Enrollment_Key end CNB_X_M,
-              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end PD_M,
-              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end DD_M,
-              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end CHC_M,
-              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end HIV_M,
-              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end MH_M,
-              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end SA_M,
-              case when CSNI.Missing>0 then PE.Program_Enrollment_Key end DV_M,
+              case when Physical_Disability is null then Program_Enrollment_Key end PD_M,
+              case when Developmental_Disability is null then PE.Program_Enrollment_Key end DD_M,
+              case when Chronic_Health_Condition is null then PE.Program_Enrollment_Key end CHC_M,
+              case when HIV_AIDS is null then PE.Program_Enrollment_Key end HIV_M,
+              case when Mental_Illness is null then PE.Program_Enrollment_Key end MH_M,
+              case when Substance_Abuse is null then PE.Program_Enrollment_Key end SA_M,
+              case when Dom_Vio_Survivor is null then PE.Program_Enrollment_Key end DV_M,
               case when Destination_Code is null and Program_Exit_Date is not null 
                 then PE.Program_Enrollment_Key end Dest_M,
               case when ID_Type in (8,9) then CI.Client_Key end ID_DKR,
@@ -407,19 +391,9 @@ shinyServer(function(input, output, session) {
             LEFT JOIN Client_Noncash_Benefits CNB_X
               on PE.Exit_Noncash_Key = CNB_X.Noncash_GK
             LEFT JOIN (
-              SELECT 
-                Program_Enrollment_Key, 
-                Collect_Stage, 
-                sum(case when Group_Key is null then 1 else 0 end) Missing,
-                sum(Physical_Disability) Physical_Disability, 
-                sum(Developmental_Disability) Developmental_Disability, 
-                sum(Chronic_Health_Condition) Chronic_Health_Condition, 
-                sum(HIV_AIDS) HIV_AIDS, 
-                sum(Mental_Illness) Mental_Illness, 
-                sum(Substance_Abuse) Substance_Abuse, 
-                sum(Dom_Vio_Survivor) Dom_Vio_Survivor 
-              FROM Client_Special_Needs_Info
-              GROUP BY Program_Enrollment_Key, Collect_Stage
+              SELECT *
+              FROM Client_Special_Needs_Info 
+              WHERE Collect_Stage=1 and Group_Key is not null
             ) CSNI
               on PE.Program_Enrollment_Key = CSNI.Program_Enrollment_Key
             WHERE 
@@ -459,8 +433,8 @@ shinyServer(function(input, output, session) {
           "Zip Code of Last Permanent Address","Housing Status (at entry)","Income (at entry)",
           "Income (at exit)","Non-Cash Benefits (at entry)","Non-Cash Benefits (at exit)",
           "Physical Disablity (at entry)","Developmental Disability (at entry)",
-          "Chronic Health Condition (at entry)","HIV/AIDS (at entry)","Mental Health (at entry)",
-          "Substance Abuse (at entry)","Domestic violence (at entry)","Destination (at exit)","TOTAL"),
+          "Chronic Health Condition (at entry)","HIV/AIDS (at entry)","Mental Illness (at entry)",
+          "Substance Abuse (at entry)","Domestic Violence (at entry)","Destination (at exit)","TOTAL"),
         
         Applicable_Records=c(sum(dataQuality()[["ENROLLS"]]),sum(dataQuality()[["ADULTS"]]),
           sum(dataQuality()[["UNACHILD"]]),sum(dataQuality()[["LEAVERS"]]),rep(sum(dataQuality()[["ENROLLS"]]),7),
