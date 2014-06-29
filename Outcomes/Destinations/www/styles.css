@@ -1,0 +1,38 @@
+
+
+.gridster .gs_w {
+  border-radius: 5px;
+}
+
+.gridster .gs_w.alert {
+  background-color: #D00;
+  color: #FFF;
+}
+
+.gridster .gs_w.warning {
+  background-color: #fc6;
+  color: #FFF;
+}
+
+
+.status_output {
+  text-align: center;
+  line-height: normal;
+}
+
+div .grid_title {
+  margin-bottom: 20px;
+  font-size: 22px;
+  text-align: center;
+  line-height: normal;
+}
+
+div .grid_bigtext {
+  font-weight: bold;
+  font-size: 40px;
+  line-height: 90%;
+}
+ div .row > .span3 {
+    display: inline-block !important;
+    vertical-align: middle !important;
+}

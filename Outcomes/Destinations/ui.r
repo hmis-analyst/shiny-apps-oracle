@@ -4,6 +4,7 @@
 # Load shiny and RODBC packages
 library(shinyIncubator)
 library(RJDBC)
+library(shinyGridster)
 
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
@@ -11,8 +12,23 @@ libPath2 <- "../../lib/"
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
+source('Z:/GitHub/shiny-apps-oracle/Outcomes/Destinations/dashwidgets.r')
+
 shinyUI(basicPage(
   progressInit(),
+  tags$head(    
+tags$link(rel = 'stylesheet', type = 'text/css', href = 'styles.css'),
+
+    # For JustGage, http://justgage.com/
+    tags$script(src = 'js/raphael.2.1.0.min.js'),
+    tags$script(src = 'js/justgage.1.0.1.min.js'),
+
+    # For Highcharts, http://www.highcharts.com/
+    tags$script(src = 'js/highcharts.js'),
+    # For the Shiny output binding for status text and JustGage
+    tags$script(src = 'shiny_status_binding.js'),
+    tags$script(src = 'justgage_binding.js')
+  ),
   br(),
   fluidRow(
     column(4,
@@ -38,14 +54,14 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Housing Destinations"),
-            p(strong("Version:"),"2.1.1"),
-            p(strong("Date:"),"20 June 2014"),
+            p(strong("Version:"),"3.0.0"),
+            p(strong("Date:"),"29 June 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving program outcomes among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Outcomes","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Minor bug fix')
+            p(' - Added Adjusted Outcome Score reporting')
           )
         )
       )
