@@ -12,13 +12,12 @@ libPath2 <- "../../lib/"
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
-source('Z:/GitHub/shiny-apps-oracle/Outcomes/Destinations/dashwidgets.r')
+source('dashwidgets.r')
 
 shinyUI(basicPage(
   progressInit(),
   tags$head(    
-tags$link(rel = 'stylesheet', type = 'text/css', href = 'styles.css'),
-
+    tags$link(rel = 'stylesheet', type = 'text/css', href = 'styles.css'),
     # For JustGage, http://justgage.com/
     tags$script(src = 'js/raphael.2.1.0.min.js'),
     tags$script(src = 'js/justgage.1.0.1.min.js'),

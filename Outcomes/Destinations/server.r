@@ -3,6 +3,7 @@
 # install.packages("ggplot2",repos="http://cran.rstudio.com/")
 # install.packages("reshape2",repos="http://cran.rstudio.com/")
 # install.packages("stringr",repos="http://cran.rstudio.com/")
+# devtools::install_github("shiny-gridster", "wch")
 
 # Load shiny, RODBC, and ggplot2 packages
 library(shinyIncubator)
