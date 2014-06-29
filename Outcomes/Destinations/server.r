@@ -664,6 +664,7 @@ shinyServer(function(input, output, session) {
     program_data_p <- ddply(program_data_valid,"PROGRAM_KEY",summarize,p=mean(likelihood))
     program_data_agg <- ddply(program_data,"PROGRAM_KEY",summarize,dest_perm=sum(O_DESTTYPE_P),n=length(PROGRAM_KEY))
     p <- merge(program_data_p,program_data_agg,by="PROGRAM_KEY",all.x=TRUE,all.y=TRUE)
+    setwd("../")
     return(p)
   })
   ProgScore <- reactive({
@@ -673,7 +674,6 @@ shinyServer(function(input, output, session) {
     phi2 <- ifelse(p$dest_perm/p$n < p$p, phi*-1, phi)
     phi3 <- ifelse(phi2 < -1, -100, ifelse(phi2 > 1, 100, phi2*100))
     phi4 <- phi3/2+50
-    setwd("../")
     return(phi4)
   })
   
@@ -826,6 +826,7 @@ shinyServer(function(input, output, session) {
     x <- program_data[which(!is.na(program_data$decile)),]
     p <- ProgScore_prep()
     DoD <- x$decile[which(abs(x$p-p$p)==min(abs(x$p-p$p)))]
+    setwd("../")
     return(DoD)
   })
   
@@ -846,6 +847,7 @@ shinyServer(function(input, output, session) {
     program_data2 <- program_data[which(program_data$n>10 & !is.na(program_data$p) & is.na(program_data$exclude)),]
     program_data2$avg <- mean(program_data2$adjscore)
     program_data2$progscore <- ProgScore()
+    setwd("../")
     isolate(
       ggplot(program_data2,aes(x=adjscore)) +
         geom_histogram() + 
@@ -942,7 +944,7 @@ shinyServer(function(input, output, session) {
                 ),
                 column(8,
                   h4("What is the Adjusted Outcome Score?"),
-                  p("A 2014 analysis of Georgia HMIS data found that, out of over 100 client characteristics, there are a handful that strongly predict how difficult it will be for a given client to exit to a permanent housing destination. This means that a ",strong("degree of difficulty")," can be calculated for your program -- based on (a) the types of clients who exited your program during the report period and (b) your program type. Once this is done, your degree of difficulty is compared with your ",strong("actual permanent destination rate.")," The final result is an adjusted score that is based on your program's actual performance, but takes into account the difficulty of your clientele. In other words, it is a better estimator of agency competence.")
+                  p("A 2014 analysis of Georgia HMIS data found that, out of over 100 client characteristics, there are a handful that strongly predict whether clients will exit to permanent housing destinations. This means that a ",strong("PREDICTED permanent destination rate")," can be calculated for your program -- based on (a) the types of clients who exited your program during the report period and (b) your program type. Once this is done, your predicted outcome is compared with your ",strong("ACTUAL permanent destination rate.")," The final result is an adjusted score that is based on your program's actual performance, but takes into account the difficulty of your clientele. In other words, it is a better estimator of agency competence.")
                 )
               ),
               br(),
