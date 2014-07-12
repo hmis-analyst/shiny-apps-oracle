@@ -33,10 +33,13 @@ shinyUI(basicPage(
           tabPanel("Data Options",
             # Require user to click "ANALYZE" button in order for graph to update
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
+            br(),
             conditionalPanel(
               condition = "input.reportLevel == 'Program'",
               textInput("passkey","Enter passkey to access client data")
             ),
+            checkboxInput("APR", "APR records only", FALSE),
+            br(),
             # Display date range input with default values
             dateRangeInput("daterange","Date range", format='mm/dd/yyyy',start="2013-07-01",max=Sys.Date()),
             br(),
@@ -86,14 +89,14 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Data Quality"),
-            p(strong("Version:"),"2.2.4"),
-            p(strong("Date:"),"27 June 2014"),
+            p(strong("Version:"),"2.3.0"),
+            p(strong("Date:"),"29 June 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Partial and state values for SSN are now considered "DKR" instead of "missing"'),
+            p(' - Added an "APR" version of the report'),
             p(' - Minor bug fixes')
           )
         )

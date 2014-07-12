@@ -89,7 +89,14 @@ shinyServer(function(input, output, session) {
     )
   })
   source(paste(libPath2,"DataOptions-Ora.server.r",sep=""), local=TRUE)
-
+  APR_records <- reactive({
+    input$update
+    isolate(
+      if(input$APR==TRUE) {
+        return(" and num=1")
+      }
+    )
+  })
   
   #################################
   # MAIN QUERY
@@ -183,7 +190,22 @@ shinyServer(function(input, output, session) {
           count(unique case when Dom_Vio_Survivor in (8,9) then Program_Enrollment_Key end) Disab_DV_DKR,
           count(unique case when Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and 
             Destination_Code in (8,9) then Program_Enrollment_Key end) Dest_DKR
-        FROM Program_Enrollment PE
+        FROM (
+          SELECT
+            PE.*,
+            row_number() over(partition by Client_Key order by Program_Entry_Date desc) num
+          FROM Program_Enrollment PE
+          JOIN Program_Profile_Info PPI
+            on PE.Program_Key = PPI.Program_Key
+          FULL JOIN Program_Community_Information PCI
+            on PE.Program_Key = PCI.Program_Key
+          FULL JOIN Community_Group_Information CGI
+            on PCI.Group_Key = CGI.Group_Key
+          WHERE
+            (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
+            Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
+            finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),programTypesSelect(),"
+        ) PE
         JOIN Client_Information CI
           on PE.Client_Key = CI.Client_Key
         JOIN Program_Profile_Info PPI
@@ -221,7 +243,7 @@ shinyServer(function(input, output, session) {
           Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and
           CSI.Collect_Stage = 1 and 
           CSNI.Collect_Stage = 1 and ",
-          finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),programTypesSelect(),"  
+          finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),programTypesSelect(),APR_records(),"  
         GROUP BY PE.Program_Key, Agency_Name, Program_Name
       ",sep=""))
     )
@@ -373,7 +395,22 @@ shinyServer(function(input, output, session) {
                 Program_Entry_Date > 180) or (Program_Type_Code = 2 and 
                 to_date('",endSelect(),"','yyyy-mm-dd') - Program_Entry_Date > 720)) and 
                 Program_Exit_Date is null then PE.Program_Enrollment_Key end LOS_Issue
-            FROM Program_Enrollment PE
+            FROM (
+              SELECT
+                PE.*,
+                row_number() over(partition by Client_Key order by Program_Entry_Date desc) num
+              FROM Program_Enrollment PE
+              JOIN Program_Profile_Info PPI
+                on PE.Program_Key = PPI.Program_Key
+              FULL JOIN Program_Community_Information PCI
+                on PE.Program_Key = PCI.Program_Key
+              FULL JOIN Community_Group_Information CGI
+                on PCI.Group_Key = CGI.Group_Key
+              WHERE
+                (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
+                Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
+                finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),programTypesSelect(),"
+            ) PE
             RIGHT JOIN Program_Profile_Info PPI
               on PE.Program_Key = PPI.Program_Key
             LEFT JOIN Program_Community_Information PCI
@@ -403,7 +440,7 @@ shinyServer(function(input, output, session) {
               Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and
               CSI.Collect_Stage = 1 and
               CSNI.Collect_Stage = 1 and 
-              PPI.Program_Key=",finalSelect_Key()," 
+              PPI.Program_Key=",finalSelect_Key(),APR_records()," 
           )
           GROUP BY Client_Key
           ORDER BY Violations Desc
