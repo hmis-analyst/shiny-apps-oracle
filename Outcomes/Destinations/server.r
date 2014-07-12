@@ -633,7 +633,8 @@ shinyServer(function(input, output, session) {
   
   ProgScore_prep <- reactive({
     input$update
-    if(length(qResults_Enrolls()[,1])<=10) {return("There was insufficient data to process this request. Please extend the report period or choose another program.")}
+    if(length(qResults_Enrolls()[which(qResults_Enrolls()$HH_HEAD==1),1])<10) {return("There was insufficient data to process this request. In order for a 
+      score to be calculated, at least 10 households must have exited during the report period. Please extend the report period or choose another program.")}
     if(length(grep("Destinations/lib",getwd()))==0) {
       setwd(libPath3)
     }
@@ -641,7 +642,8 @@ shinyServer(function(input, output, session) {
       "ES" = "ES",
       "TH" = "TH",
       "PSH" = "PSH",
-      "RapidReHousing" = "RRH"
+      "RapidReHousing" = "RRH",
+      "Prevention" = "Prev"
     ))
     q <- qResults_Enrolls()
     q$DEM_RACE_OTHERMINORITY <- NA
@@ -688,14 +690,14 @@ shinyServer(function(input, output, session) {
     p_value <- binom.test(x=p$dest_perm,n=p$n,p=p$p)$p.value
     if(p_value<.05) {
       if(p$dest_perm/p$n<p$p) {
-        return("(significantly WORSE than the Georgia average)")
+        return("(WORSE than the Georgia average)")
       }
       else {
-        return("(significantly BETTER than the Georgia average)")
+        return("(BETTER than the Georgia average)")
       }
     }
     else {
-      return("(not significantly different from the Georgia average)")
+      return("(not statistically different from the Georgia average)")
     }
   })
   
@@ -820,7 +822,8 @@ shinyServer(function(input, output, session) {
       "ES" = "ES",
       "TH" = "TH",
       "PSH" = "PSH",
-      "RapidReHousing" = "RRH"
+      "RapidReHousing" = "RRH",
+      "Prevention" = "Prev"
     ))
     program_data <- read.csv(paste(prog_type," program data 2013.csv",sep=""))
     x <- program_data[which(!is.na(program_data$decile)),]
@@ -840,7 +843,8 @@ shinyServer(function(input, output, session) {
       "ES" = "ES",
       "TH" = "TH",
       "PSH" = "PSH",
-      "RapidReHousing" = "RRH"
+      "RapidReHousing" = "RRH",
+      "Prevention" = "Prev"
     ))
     program_data <- read.csv(paste(prog_type," program data 2013.csv",sep=""))
     program_data2 <- NULL
@@ -925,7 +929,7 @@ shinyServer(function(input, output, session) {
             tabPanel("Performance",
               if(length(ProgScore_prep())==1) {
                 div(
-                  p(paste("Data were insufficient to process this request. There must be at least 10 leavers with complete data. Please extend the report period or choose another program.")),
+                  p(paste("There was insufficient data to process this request. In order for a score to be calculated, at least 10 households must have exited during the report period. Please extend the report period or choose another program.")),
                   br()
                 )
               },
@@ -944,7 +948,7 @@ shinyServer(function(input, output, session) {
                 ),
                 column(8,
                   h4("What is the Adjusted Outcome Score?"),
-                  p("A 2014 analysis of Georgia HMIS data found that, out of over 100 client characteristics, there are a handful that strongly predict whether clients will exit to permanent housing destinations. This means that a ",strong("PREDICTED permanent destination rate")," can be calculated for your program -- based on (a) the types of clients who exited your program during the report period and (b) your program type. Once this is done, your predicted outcome is compared with your ",strong("ACTUAL permanent destination rate.")," The final result is an adjusted score that is based on your program's actual performance, but takes into account the difficulty of your clientele. In other words, it is a better estimator of agency competence.")
+                  p("A 2014 analysis of Georgia HMIS data found that, out of over 100 characteristics, there are a handful that strongly predict whether heads of household will exit to permanent housing destinations. This means that a ",strong("PREDICTED permanent destination rate")," can be calculated for your program -- based on (a) the types of households that exited your program during the report period and (b) your program type. Once this is done, your predicted outcome is compared with your ",strong("ACTUAL permanent destination rate.")," The final result is an adjusted score that is based on your program's actual performance, but takes into account the difficulty of your clientele. In other words, you are not penalized for serving more-difficult households.")
                 )
               ),
               br(),
