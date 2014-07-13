@@ -95,8 +95,8 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Homelessness Recurrence"),
-            p(strong("Version:"),"1.2.0"),
-            p(strong("Date:"),"14 June 2014"),
+            p(strong("Version:"),"1.2.1"),
+            p(strong("Date:"),"12 July 2014"),
             p(strong("Description:"),"Set of customizable reports and charts on recurrence, for the purpose of reporting
               and improving program outcomes among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),

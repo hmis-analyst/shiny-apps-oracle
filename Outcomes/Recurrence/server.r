@@ -72,12 +72,10 @@ shinyServer(function(input, output, session) {
     isolate(
       if(input$reportLevel=="Group") {
         input$groupSelect
-      } 
-      else{
+      } else{
         if(input$reportLevel=="Agency") {
           input$agencySelect
-        } 
-        else {
+        } else {
           input$programSelect
         }
       }
@@ -97,8 +95,7 @@ shinyServer(function(input, output, session) {
       WHERE ",
         if(input$reportLevel=="Group") {
           paste("CGI.Group_Name='",str_replace_all(input$groupSelect,"'","''"),"'",sep="")
-        } 
-        else {
+        } else {
           paste("PPI.Agency_Name='",str_replace_all(input$agencySelect,"'","''"),"'",sep="")
         },
         if(input$reportLevel=="Program") {
@@ -118,8 +115,7 @@ shinyServer(function(input, output, session) {
       WHERE ", 
         if(input$reportLevel=="Group") {
           paste("CGI.Group_Name='",str_replace_all(input$groupSelect,"'","''"),"'",sep="")
-        } 
-        else {
+        } else {
           paste("PPI.Agency_Name='",str_replace_all(input$agencySelect,"'","''"),"'",sep="")
         },
         if(input$reportLevel=="Program") {
@@ -140,8 +136,7 @@ shinyServer(function(input, output, session) {
         WHERE ", 
           if(input$reportLevel=="Group") {
             paste("CGI.Group_Name='",str_replace_all(input$groupSelect,"'","''"),"'",sep="")
-          } 
-          else {
+          } else {
             paste("PPI.Agency_Name='",str_replace_all(input$agencySelect,"'","''"),"'",sep="")
           },
           if(input$reportLevel=="Program") {
@@ -239,18 +234,10 @@ shinyServer(function(input, output, session) {
           (
             /* Rule L.1.a */
             (
-              Program_Type_Code = 1 and 
+              Program_Type_Code in (1,2) and 
               Destination_Code in (3, 10, 11, 12, 13, 14, 19, 20, 21, 22, 23, 113, 116, 117, 118, 119, 120, 122, 806, 807)
             ) or 
-            /* Rule L.1.b */
-            (
-              Program_Type_Code = 2 and 
-              (
-                Program_Exit_Date - Program_Entry_Date + 1 >= 90 or 
-                Destination_Code in (3, 10, 11, 12, 13, 14, 19, 20, 21, 22, 23, 113, 116, 117, 118, 119, 120, 122, 806, 807)
-              )
-            ) or
-            /* Rule L.1.c. */
+            /* Rule L.1.b. */
             (
               Program_Type_Code in (3,14) and 
               (
@@ -293,22 +280,13 @@ shinyServer(function(input, output, session) {
             # Destination category 20 could refer to a rapid re-housing enrollment.
             if(Exits2[i,"DESTINATION_CODE"] == 20) {
               c("and not Program_Type_Code = 14","+30")
-            } 
-            else {
+            } else {
               # Permanent supportive housing
               if(Exits2[i,"DESTINATION_CODE"] == 3) {
                 c("and not Program_Type_Code = 3","+30")
-              } 
-              else {
-                # Transitional housing
-                if(Exits2[i,"DESTINATION_CODE"]==2) {
-                  c("and not Program_Type_Code = 2","+30")
-                }
-                else {c("","")}
-              }
+              } else {c("","")}
             }
-          }
-          else {c("","")}
+          } else {c("","")}
         # Queries the next homeless program entry date for the current client (if such an entry exists)
         # Also collects other information about the client's next enrollment.
         #-------------------
@@ -357,6 +335,7 @@ shinyServer(function(input, output, session) {
             PE.Client_Key = ", Client, 
             Rule_R2b$ProgLimit,"
           GROUP BY PE.Client_Key, Agency_Name, Program_Name, Program_Type, RTC.Description,LOSC.Description, Length_of_Stay_Code
+          ORDER BY Next_Homeless
         ")) 
         #-------------------
         # Establishing that a client has returned to homelessness, Rule R.2.d
@@ -364,8 +343,7 @@ shinyServer(function(input, output, session) {
         # If this condition is met, Return_Date = Program_Exit_Date of the client's current enrollment
         Exits2[i,"Return_Date"] <- if(Exits2[i,"DESTINATION_CODE"] %in% c(1,2,16)) {
           Exits2[i,"PROGRAM_EXIT_DATE"]
-        } 
-        else {
+        } else {
           # Otherwise, Return_Date = Next_Homeless
           if(length(Temp[1,"NEXT_HOMELESS"])==0) {NA}
           else {
@@ -449,24 +427,19 @@ shinyServer(function(input, output, session) {
       which(
         # Rule #1b
         ( 
-          Exits2()[,"PROGRAM_TYPE_CODE"] == 1 &
+          Exits2()[,"PROGRAM_TYPE_CODE"] %in% c(1,2) &
           Exits2()[,"DEST_PERMANENT"]==1 & 
           Exits2()[,"Days_Until_Return"]>=30
         ) | 
         # Rule #1c
         (
-          Exits2()[,"PROGRAM_TYPE_CODE"] == 1 &
+          Exits2()[,"PROGRAM_TYPE_CODE"] %in% c(1,2) &
           (
             Exits2()[,"DEST_TEMPORARY"]==1 | 
             Exits2()[,"DEST_INSTITUTIONAL"]==1
           ) & 
           Exits2()[,"Days_Until_Return"]>=90
         ) |
-        # Rule #2
-        (
-          Exits2()[,"PROGRAM_TYPE_CODE"] == 2 &
-          Exits2()[,"LENGTH_OF_STAY"] + Exits2()[,"Days_Until_Return"] >= 90
-        ) | 
         # Rule #3
         (
           Exits2()[,"PROGRAM_TYPE_CODE"] %in% c(3,14) &
@@ -646,8 +619,7 @@ shinyServer(function(input, output, session) {
           )
         }
       ))
-    }
-    else {
+    } else {
       isolate(div(
         if(input$reportLevel!="Program") {div(
           h4("Main Panel",align="center"),
@@ -680,8 +652,7 @@ shinyServer(function(input, output, session) {
               )
             )
           )
-        )}
-        else{div(
+        )} else{div(
           h4("Main Panel",align="center"),
           tabsetPanel(
             tabPanel("Summary",
