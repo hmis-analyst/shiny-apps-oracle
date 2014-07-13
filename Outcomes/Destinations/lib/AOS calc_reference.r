@@ -104,11 +104,11 @@ program_data_agg4 <- merge(program_data_agg2,program_data_agg3[,c("PROGRAM_KEY",
 program_data_agg4$exclude <- NA
 
 # Draw a histogram of Adjusted Outcome Scores. For any outliers, set Exclude=1. Redraw histogram.
-hist(program_data_agg4[which(!is.na(program_data_agg4$decile)),"p"])
-# program_data_agg4[which(program_data_agg4$p <.88),"exclude"] <- 1
-hist(program_data_agg4[which(!is.na(program_data_agg4$decile) & is.na(program_data_agg4$exclude)),"p"])
+hist(program_data_agg4[which(!is.na(program_data_agg4$decile)),"adjscore"])
+# program_data_agg4[which(program_data_agg4$adjscore <40),"exclude"] <- 1
+hist(program_data_agg4[which(!is.na(program_data_agg4$decile) & is.na(program_data_agg4$exclude)),"adjscore"])
 
 # Save program-level performance scores
 setwd("Z:/GitHub/shiny-apps-oracle/Outcomes/Destinations/lib")
-write.csv(program_data_agg4,file=paste(prog_type," program data 2013.csv",sep=""),na="",row.names=FALSE)
+write.csv(program_data_agg4,file=paste("Program data",prog_type,"SFY2014.csv",sep="_"),na="",row.names=FALSE)
 

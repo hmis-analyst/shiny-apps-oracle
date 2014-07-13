@@ -1,6 +1,6 @@
 libname jdata "Z:\Documents\Pathways\Pred Measures\Datasets";
 
-proc import datafile="Z:\Documents\Pathways\Pred Measures\Datasets\HMIS Preds_Prev_SFY2014.csv"
+proc import datafile="Z:\Documents\Pathways\Pred Measures\Datasets\Exits_Prev_SFY2014.csv"
   out=HMIS_data
   dbms=csv
   replace;

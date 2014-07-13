@@ -825,7 +825,7 @@ shinyServer(function(input, output, session) {
       "RapidReHousing" = "RRH",
       "Prevention" = "Prev"
     ))
-    program_data <- read.csv(paste(prog_type," program data 2013.csv",sep=""))
+    program_data <- read.csv(paste("Prog data",prog_type,"SFY2014.csv",sep="_"))
     x <- program_data[which(!is.na(program_data$decile)),]
     p <- ProgScore_prep()
     DoD <- x$decile[which(abs(x$p-p$p)==min(abs(x$p-p$p)))]
@@ -846,7 +846,7 @@ shinyServer(function(input, output, session) {
       "RapidReHousing" = "RRH",
       "Prevention" = "Prev"
     ))
-    program_data <- read.csv(paste(prog_type," program data 2013.csv",sep=""))
+    program_data <- read.csv(paste("Prog data",prog_type,"SFY2014.csv",sep="_"))
     program_data2 <- NULL
     program_data2 <- program_data[which(program_data$n>10 & !is.na(program_data$p) & is.na(program_data$exclude)),]
     program_data2$avg <- mean(program_data2$adjscore)

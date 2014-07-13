@@ -53,15 +53,14 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Housing Destinations"),
-            p(strong("Version:"),"3.1.0"),
-            p(strong("Date:"),"11 July 2014"),
+            p(strong("Version:"),"3.1.1"),
+            p(strong("Date:"),"12 July 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving program outcomes among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Outcomes","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Added Adjusted Outcome Score reporting for Prevention programs'),
-            p(' - Minor aesthetic changes')
+            p(' - Minor changes in syntax')
           )
         )
       )
