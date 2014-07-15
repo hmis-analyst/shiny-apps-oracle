@@ -20,7 +20,7 @@ shinyUI(basicPage(
   fluidRow(
     column(4,
       tags$form(class="well noprint",
-        h3("Data Quality",align="center"),
+        h3("Data Elements",align="center"),
         tabsetPanel(selected="Data Options",
           tabPanel("Instructions",
             p('1. FIRST select your data options.'),
@@ -88,15 +88,16 @@ shinyUI(basicPage(
             checkboxInput("printable", "Printable", FALSE)
           ),
           tabPanel("About",
-            p(strong("Title:"),"Georgia HMIS Data Quality"),
-            p(strong("Version:"),"2.3.0"),
-            p(strong("Date:"),"29 June 2014"),
+            p(strong("Title:"),"Georgia HMIS Data Quality: Data Elements"),
+            p(strong("Version:"),"2.4.0"),
+            p(strong("Date:"),"15 July 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Added an "APR" version of the report'),
+            p(' - Added "long-term stayers" data element'),
+            p(' - Updated Summary table to include unaccompanied children and long-term stayers')
             p(' - Minor bug fixes')
           )
         )

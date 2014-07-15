@@ -102,7 +102,7 @@ shinyServer(function(input, output, session) {
   # MAIN QUERY
   #################################
     
-  dataQuality <- reactive({
+  dqQuery <- reactive({
     if (progCount2()==0) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
@@ -110,86 +110,91 @@ shinyServer(function(input, output, session) {
     progress$set(message="Retrieving program data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     isolate(
-      dataQuality <- dbGetQuery(connection,paste("
+      dqQuery <- dbGetQuery(connection,paste("
       SELECT unique PE.Program_Key,
           Agency_Name,
           Program_Name,
           count(unique PE.Program_Enrollment_Key) Enrolls,
           count(unique PE.Client_Key) Clients,
           count(unique case when (Program_Entry_Date - Date_of_Birth)/365.25 >= 18 
-            then Program_Enrollment_Key end) Adults,
+            then PE.Program_Enrollment_Key end) Adults,
           count(unique case when HH_Members=1 and (Program_Entry_Date - Date_of_Birth)/365.25 < 18 
-            then Program_Enrollment_Key end) UnaChild,
+            then PE.Program_Enrollment_Key end) UnaChild,
           count(unique case when Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
-            then Program_Enrollment_Key end) Leavers,
-          count(unique case when Name_First = 'MISSING' then Program_Enrollment_Key end) Name_F_M,
-          count(unique case when Name_Last = 'MISSING' then Program_Enrollment_Key end) Name_L_M,
-          count(unique case when ID_Type is null then Program_Enrollment_Key end) SSN_M,
+            then PE.Program_Enrollment_Key end) Leavers,
+          count(unique case when (
+              (Program_Type_Code = 1 and to_date('",endSelect(),"','yyyy-mm-dd') - Program_Entry_Date > 180) or 
+              (Program_Type_Code = 2 and to_date('",endSelect(),"','yyyy-mm-dd') - Program_Entry_Date > 720)
+            ) and 
+            Program_Exit_Date is null then PE.Program_Enrollment_Key end) LongtermStayers, 
+          count(unique case when Name_First = 'MISSING' then PE.Program_Enrollment_Key end) Name_F_M,
+          count(unique case when Name_Last = 'MISSING' then PE.Program_Enrollment_Key end) Name_L_M,
+          count(unique case when ID_Type is null then PE.Program_Enrollment_Key end) SSN_M,
           count(unique case when Date_of_Birth is null and not DOB_Type in (8,9)
-            then Program_Enrollment_Key end) DOB_M,
-          count(unique case when Race_Code is null then Program_Enrollment_Key end) Race_M,
-          count(unique case when Ethnicity_Code is null then Program_Enrollment_Key end) Ethn_M,
-          count(unique case when Gender_Code is null then Program_Enrollment_Key end) Gender_M,
-          count(unique case when Veteran_Status_Code is null then Program_Enrollment_Key end) Vet_M,
-          count(unique case when Disabling_Condition is null then Program_Enrollment_Key end) Disab_M,
+            then PE.Program_Enrollment_Key end) DOB_M,
+          count(unique case when Race_Code is null then PE.Program_Enrollment_Key end) Race_M,
+          count(unique case when Ethnicity_Code is null then PE.Program_Enrollment_Key end) Ethn_M,
+          count(unique case when Gender_Code is null then PE.Program_Enrollment_Key end) Gender_M,
+          count(unique case when Veteran_Status_Code is null then PE.Program_Enrollment_Key end) Vet_M,
+          count(unique case when Disabling_Condition is null then PE.Program_Enrollment_Key end) Disab_M,
           count(unique case when Prior_Nights_Residence_Code is null 
-            then Program_Enrollment_Key end) PNR_M,
-          count(unique case when Zip_Quality_Code is null then Program_Enrollment_Key end) Zip_M,
+            then PE.Program_Enrollment_Key end) PNR_M,
+          count(unique case when Zip_Quality_Code is null then PE.Program_Enrollment_Key end) Zip_M,
           count(unique case when Housing_Status_Code is null 
-            then Program_Enrollment_Key end) HStatus_M,
+            then PE.Program_Enrollment_Key end) HStatus_M,
           count(unique case when CCI_N.Verified_Answer is null 
-            then Program_Enrollment_Key end) Inc_N_M,
+            then PE.Program_Enrollment_Key end) Inc_N_M,
           count(unique case when CCI_X.Verified_Answer is null and 
             Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
-            then Program_Enrollment_Key end) Inc_X_M,
+            then PE.Program_Enrollment_Key end) Inc_X_M,
           count(unique case when CNB_N.Verified_Answer is null 
-            then Program_Enrollment_Key end) Ben_N_M,
+            then PE.Program_Enrollment_Key end) Ben_N_M,
           count(unique case when CNB_X.Verified_Answer is null and 
             Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
-            then Program_Enrollment_Key end) Ben_X_M,
-          count(unique case when Physical_Disability is null then Program_Enrollment_Key end) Disab_P_M,
-          count(unique case when Developmental_Disability is null then Program_Enrollment_Key end) Disab_D_M,
-          count(unique case when Chronic_Health_Condition is null then Program_Enrollment_Key end) Disab_C_M,
-          count(unique case when HIV_AIDS is null then Program_Enrollment_Key end) Disab_H_M,
-          count(unique case when Mental_Illness is null then Program_Enrollment_Key end) Disab_M_M,
-          count(unique case when Substance_Abuse is null then Program_Enrollment_Key end) Disab_S_M,
-          count(unique case when Dom_Vio_Survivor is null then Program_Enrollment_Key end) Disab_DV_M,
+            then PE.Program_Enrollment_Key end) Ben_X_M,
+          count(unique case when Physical_Disability is null then PE.Program_Enrollment_Key end) Disab_P_M,
+          count(unique case when Developmental_Disability is null then PE.Program_Enrollment_Key end) Disab_D_M,
+          count(unique case when Chronic_Health_Condition is null then PE.Program_Enrollment_Key end) Disab_C_M,
+          count(unique case when HIV_AIDS is null then PE.Program_Enrollment_Key end) Disab_H_M,
+          count(unique case when Mental_Illness is null then PE.Program_Enrollment_Key end) Disab_M_M,
+          count(unique case when Substance_Abuse is null then PE.Program_Enrollment_Key end) Disab_S_M,
+          count(unique case when Dom_Vio_Survivor is null then PE.Program_Enrollment_Key end) Disab_DV_M,
           count(unique case when Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and 
-            Destination_Code is null then Program_Enrollment_Key end) Dest_M,
-          count(unique case when ID_Type in (2,3,4,8,9) then Program_Enrollment_Key end) SSN_DKR,
-          count(unique case when DOB_Type in (8,9)then Program_Enrollment_Key end) DOB_DKR,
-          count(unique case when Race_Code in (15,16) then Program_Enrollment_Key end) Race_DKR,
-          count(unique case when Ethnicity_Code in (8,9) then Program_Enrollment_Key end) Ethn_DKR,
-          count(unique case when Gender_Code in (8,9) then Program_Enrollment_Key end) Gender_DKR,
-          count(unique case when Veteran_Status_Code in (8,9) then Program_Enrollment_Key end) Vet_DKR,
-          count(unique case when Disabling_Condition in (8,9) then Program_Enrollment_Key end) Disab_DKR,
+            Destination_Code is null then PE.Program_Enrollment_Key end) Dest_M,
+          count(unique case when ID_Type in (2,3,4,8,9) then PE.Program_Enrollment_Key end) SSN_DKR,
+          count(unique case when DOB_Type in (8,9)then PE.Program_Enrollment_Key end) DOB_DKR,
+          count(unique case when Race_Code in (15,16) then PE.Program_Enrollment_Key end) Race_DKR,
+          count(unique case when Ethnicity_Code in (8,9) then PE.Program_Enrollment_Key end) Ethn_DKR,
+          count(unique case when Gender_Code in (8,9) then PE.Program_Enrollment_Key end) Gender_DKR,
+          count(unique case when Veteran_Status_Code in (8,9) then PE.Program_Enrollment_Key end) Vet_DKR,
+          count(unique case when Disabling_Condition in (8,9) then PE.Program_Enrollment_Key end) Disab_DKR,
           count(unique case when Prior_Nights_Residence_Code in (8,9) 
-            then Program_Enrollment_Key end) PNR_DKR,
-          count(unique case when Zip_Quality_Code in (8,9) then Program_Enrollment_Key end) Zip_DKR,
+            then PE.Program_Enrollment_Key end) PNR_DKR,
+          count(unique case when Zip_Quality_Code in (8,9) then PE.Program_Enrollment_Key end) Zip_DKR,
           count(unique case when Housing_Status_Code in (8,9) 
-            then Program_Enrollment_Key end) HStatus_DKR,
+            then PE.Program_Enrollment_Key end) HStatus_DKR,
           count(unique case when CCI_N.Verified_Answer in (8,9) 
-            then Program_Enrollment_Key end) Inc_N_DKR,
+            then PE.Program_Enrollment_Key end) Inc_N_DKR,
           count(unique case when CCI_X.Verified_Answer in (8,9) and 
             Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
-            then Program_Enrollment_Key end) Inc_X_DKR,
+            then PE.Program_Enrollment_Key end) Inc_X_DKR,
           count(unique case when CNB_N.Verified_Answer in (8,9) 
-            then Program_Enrollment_Key end) Ben_N_DKR,
+            then PE.Program_Enrollment_Key end) Ben_N_DKR,
           count(unique case when CNB_X.Verified_Answer in (8,9) and 
             Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') 
-            then Program_Enrollment_Key end) Ben_X_DKR,
+            then PE.Program_Enrollment_Key end) Ben_X_DKR,
           count(unique case when Physical_Disability in (8,9) 
-            then Program_Enrollment_Key end) Disab_P_DKR,
+            then PE.Program_Enrollment_Key end) Disab_P_DKR,
           count(unique case when Developmental_Disability in (8,9) 
-            then Program_Enrollment_Key end) Disab_D_DKR,
+            then PE.Program_Enrollment_Key end) Disab_D_DKR,
           count(unique case when Chronic_Health_Condition in (8,9) 
-            then Program_Enrollment_Key end) Disab_C_DKR,
-          count(unique case when HIV_AIDS in (8,9) then Program_Enrollment_Key end) Disab_H_DKR,
-          count(unique case when Mental_Illness in (8,9) then Program_Enrollment_Key end) Disab_M_DKR,
-          count(unique case when Substance_Abuse in (8,9) then Program_Enrollment_Key end) Disab_S_DKR,
-          count(unique case when Dom_Vio_Survivor in (8,9) then Program_Enrollment_Key end) Disab_DV_DKR,
+            then PE.Program_Enrollment_Key end) Disab_C_DKR,
+          count(unique case when HIV_AIDS in (8,9) then PE.Program_Enrollment_Key end) Disab_H_DKR,
+          count(unique case when Mental_Illness in (8,9) then PE.Program_Enrollment_Key end) Disab_M_DKR,
+          count(unique case when Substance_Abuse in (8,9) then PE.Program_Enrollment_Key end) Disab_S_DKR,
+          count(unique case when Dom_Vio_Survivor in (8,9) then PE.Program_Enrollment_Key end) Disab_DV_DKR,
           count(unique case when Program_Exit_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and 
-            Destination_Code in (8,9) then Program_Enrollment_Key end) Dest_DKR
+            Destination_Code in (8,9) then PE.Program_Enrollment_Key end) Dest_DKR         
         FROM (
           SELECT
             PE.*,
@@ -214,7 +219,11 @@ shinyServer(function(input, output, session) {
           on PE.Program_Key = PCI.Program_Key
         FULL JOIN Community_Group_Information CGI
           on PCI.Group_Key = CGI.Group_Key
-        LEFT JOIN Client_Status_Information CSI
+        LEFT JOIN (
+          SELECT *
+          FROM Client_Status_Information
+          WHERE Collect_Stage=1
+        ) CSI
           on PE.Program_Enrollment_Key = CSI.Program_Enrollment_Key
         LEFT JOIN Client_Cash_Income CCI_N
           on PE.Entry_Cash_Key = CCI_N.Cash_GK
@@ -225,11 +234,11 @@ shinyServer(function(input, output, session) {
         LEFT JOIN Client_Noncash_Benefits CNB_X
           on PE.Exit_Noncash_Key = CNB_X.Noncash_GK
         LEFT JOIN (
-            SELECT 
-              Household_Key,
-              count(Household_Key) HH_Members
-            FROM Household_Client_Info HCI 
-            GROUP BY Household_Key
+          SELECT 
+            Household_Key,
+            count(Household_Key) HH_Members
+          FROM Household_Client_Info HCI 
+          GROUP BY Household_Key
         ) HCI
           on PE.Household_Key = HCI.Household_Key
         LEFT JOIN (
@@ -240,13 +249,16 @@ shinyServer(function(input, output, session) {
           on PE.Program_Enrollment_Key = CSNI.Program_Enrollment_Key
         WHERE
           (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or Program_Exit_Date is null) and
-          Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and
-          CSI.Collect_Stage = 1 and 
-          CSNI.Collect_Stage = 1 and ",
+          Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and ",
           finalSelect_Table(),input$reportLevel,"_Key=",finalSelect_Key(),programTypesSelect(),APR_records(),"  
         GROUP BY PE.Program_Key, Agency_Name, Program_Name
       ",sep=""))
     )
+    progress$close()    
+    return(dqQuery)
+  })
+  dataQuality <- reactive({
+    dataQuality <- dqQuery()
     if(sum(grepl("ERROR",dataQuality))==0) {
       dataQuality[,"APP_REC"] <- dataQuality$ENROLLS*20+dataQuality$ADULTS+
         dataQuality$LEAVERS*3
@@ -271,8 +283,7 @@ shinyServer(function(input, output, session) {
             "green3"
           )
         )
-    }
-    progress$close()    
+    }   
     return(dataQuality)
   })
     
@@ -297,7 +308,8 @@ shinyServer(function(input, output, session) {
           PI_DKR, 
           IB_DKR, 
           SN_DKR, 
-          LOS_Issue, 
+          Unachild,
+          LongtermStayers, 
           Violations 
         FROM (
           SELECT unique 
@@ -319,7 +331,8 @@ shinyServer(function(input, output, session) {
               count(CNB_X_DKR)>0 then 'x' end IB_DKR, 
             case when count(PD_DKR)>0 or count(DD_DKR)>0 or count(CHC_DKR)>0 or count(HIV_DKR)>0 or 
               count(MH_DKR)>0 or count(SA_DKR)>0 or count(DV_DKR)>0 then 'x' end SN_DKR,
-            case when count(LOS_Issue)>0 then 'x' end LOS_Issue, 
+            case when count(UnaChild)>0 then 'x' end UnaChild, 
+            case when count(LongtermStayers)>0 then 'x' end LongtermStayers, 
             count(unique FN_M) + count(unique LN_M) + count(unique ID_M) + count(unique DOB_M) + 
               count(unique Race_M) + count(unique Ethn_M) + count(unique Gender_M) + 
               count(unique Vet_M) + count(unique Disab_M) + count(unique PNR_M) + count(unique Zip_M) +
@@ -334,7 +347,8 @@ shinyServer(function(input, output, session) {
               count(unique CNB_N_DKR) + count(unique CNB_X_DKR) + count(unique PD_DKR) + 
               count(unique DD_DKR) + count(unique CHC_DKR) + count(unique HIV_DKR) + 
               count(unique MH_DKR) + count(unique SA_DKR) + count(unique DV_DKR) + 
-              count(unique LOS_Issue) Violations
+              count(unique UnaChild) +
+              count(unique LongtermStayers) Violations
           FROM (
             SELECT unique
               PE.Program_Enrollment_Key,
@@ -391,10 +405,12 @@ shinyServer(function(input, output, session) {
               case when Dom_Vio_Survivor in (8,9) then PE.Program_Enrollment_Key end DV_DKR,
               case when Destination_Code in (8,9) and Program_Exit_Date is not null 
                 then PE.Program_Enrollment_Key end Dest_DKR,
+              case when HH_Members=1 and (Program_Entry_Date - Date_of_Birth)/365.25 < 18 
+                then PE.Program_Enrollment_Key end UnaChild,
               case when ((Program_Type_Code = 1 and to_date('",endSelect(),"','yyyy-mm-dd') - 
                 Program_Entry_Date > 180) or (Program_Type_Code = 2 and 
                 to_date('",endSelect(),"','yyyy-mm-dd') - Program_Entry_Date > 720)) and 
-                Program_Exit_Date is null then PE.Program_Enrollment_Key end LOS_Issue
+                Program_Exit_Date is null then PE.Program_Enrollment_Key end LongtermStayers
             FROM (
               SELECT
                 PE.*,
@@ -417,7 +433,11 @@ shinyServer(function(input, output, session) {
               on PPI.Program_Key = PCI.Program_Key
             JOIN Client_Information CI
               on PE.Client_Key = CI.Client_Key
-            LEFT JOIN Client_Status_Information CSI
+            LEFT JOIN (
+              SELECT * 
+              FROM Client_Status_Information
+              WHERE Collect_Stage=1
+            ) CSI
               on PE.Program_Enrollment_Key = CSI.Program_Enrollment_Key
             LEFT JOIN Client_Cash_Income CCI_N
               on PE.Entry_Cash_Key = CCI_N.Cash_GK
@@ -433,13 +453,19 @@ shinyServer(function(input, output, session) {
               WHERE Collect_Stage=1 and Group_Key is not null
             ) CSNI
               on PE.Program_Enrollment_Key = CSNI.Program_Enrollment_Key
+            LEFT JOIN (
+              SELECT 
+                Household_Key,
+                count(Household_Key) HH_Members
+              FROM Household_Client_Info HCI 
+              GROUP BY Household_Key
+            ) HCI
+              on PE.Household_Key = HCI.Household_Key
             WHERE 
               PCI.Group_Key in (",groupKeys(),") and
               (Program_Exit_Date >= to_date('",beginSelect(),"','yyyy-mm-dd') or 
                 Program_Exit_Date is null) and
               Program_Entry_Date <= to_date('",endSelect(),"','yyyy-mm-dd') and
-              CSI.Collect_Stage = 1 and
-              CSNI.Collect_Stage = 1 and 
               PPI.Program_Key=",finalSelect_Key(),APR_records()," 
           )
           GROUP BY Client_Key
@@ -451,9 +477,9 @@ shinyServer(function(input, output, session) {
     
     names(Violations) <- c("Client Key","Missing General Info","Missing Program Info",
       "Missing Income / Benefits","Missing Special Needs","DKR General Info","DKR Program Info",
-      "DKR Income / Benefits","DKR Special Needs","Length of Stay Issue")
+      "DKR Income / Benefits","DKR Special Needs","Unac. Child","Long-Term Stayer")
     progress$close()
-    return(Violations[,1:10])
+    return(Violations[,1:11])
   })
   
   #################################
@@ -464,7 +490,7 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0) return()
       dqReport <- data.frame(
       
-        Data_Element=c("Total Clients","Total Adults","Total Unaccompanied Children","Total Leavers",
+        Data_Element=c("Total Clients","Total Adults","Total Unaccompanied Children","Total Leavers", "Long-Term Stayers",
           "First Name","Last Name","Social Security Number","Date of Birth","Race","Ethnicity","Gender",
           "Veteran Status","Disabling Condition","Residence Prior to Program Entry",
           "Zip Code of Last Permanent Address","Housing Status (at entry)","Income (at entry)",
@@ -474,15 +500,15 @@ shinyServer(function(input, output, session) {
           "Substance Abuse (at entry)","Domestic Violence (at entry)","Destination (at exit)","TOTAL"),
         
         Applicable_Records=c(sum(dataQuality()[["ENROLLS"]]),sum(dataQuality()[["ADULTS"]]),
-          sum(dataQuality()[["UNACHILD"]]),sum(dataQuality()[["LEAVERS"]]),rep(sum(dataQuality()[["ENROLLS"]]),7),
+          sum(dataQuality()[["UNACHILD"]]),sum(dataQuality()[["LEAVERS"]]),sum(dataQuality()[["LONGTERMSTAYERS"]]),rep(sum(dataQuality()[["ENROLLS"]]),7),
           sum(dataQuality()[["ADULTS"]]),rep(sum(dataQuality()[["ENROLLS"]]),5),sum(dataQuality()[["LEAVERS"]]),
           sum(dataQuality()[["ENROLLS"]]),sum(dataQuality()[["LEAVERS"]]),rep(sum(dataQuality()[["ENROLLS"]]),7),
           sum(dataQuality()[["LEAVERS"]]),sum(dataQuality()[["APP_REC"]])),
         
-        Missing=c(NA,NA,NA,NA,as.numeric(colSums(dataQuality()[grep("^NAME_F_M$",colnames(dataQuality())):
+        Missing=c(NA,NA,NA,NA,NA,as.numeric(colSums(dataQuality()[grep("^NAME_F_M$",colnames(dataQuality())):
           grep("^DEST_M$",colnames(dataQuality()))])),sum(dataQuality()[["SUM_MISS"]])),
           
-        DKR=c(NA,NA,NA,NA,0,0,as.numeric(colSums(dataQuality()[grep("^SSN_DKR$",colnames(dataQuality())):
+        DKR=c(NA,NA,NA,NA,NA,0,0,as.numeric(colSums(dataQuality()[grep("^SSN_DKR$",colnames(dataQuality())):
           grep("^DEST_DKR$",colnames(dataQuality()))])),sum(dataQuality()[["SUM_DKR"]]))
         
       )
@@ -490,7 +516,7 @@ shinyServer(function(input, output, session) {
       names(dqReport) <- c("Data Element","Applicable Records","Missing","DKR")
     
       dqReport[,"Missing + DKR (%)"] <- ifelse(is.na(dqReport[,"Missing"]) | is.na(dqReport[,"DKR"]),"",
-        ifelse(dqReport[,"Applicable Records"]==0 & !is.na(dqReport[,"Missing"]) & !is.na(dqReport[,"DKR"]),"0%",
+        ifelse(dqReport[,"Applicable Records"]==0 & !is.na(dqReport[,"Missing"]) & !is.na(dqReport[,"DKR"]),"0",
         round((dqReport[,"Missing"]+dqReport[,"DKR"])/dqReport[,"Applicable Records"]*100,1)))
     
       return(dqReport)
@@ -499,13 +525,13 @@ shinyServer(function(input, output, session) {
   dqReport_short <- reactive({
     if (progCount2()==0) return()   
       dqReport_short <- data.frame(
-        Category = c("Universal","Program-Specific","TOTAL"),
-        App_Rec = c(sum(dqReport()[5:12,2]),sum(dqReport()[13:29,2]),dqReport()[29,2]),
-        M = c(sum(dqReport()[5:12,3]),sum(dqReport()[13:28,3]),dqReport()[29,3]),
-        DKR = c(sum(dqReport()[5:12,4]),sum(dqReport()[13:28,4]),dqReport()[29,4]),
-        MDKR = round(c(sum(dqReport()[5:12,3:4])/sum(dqReport()[5:12,2]),
-          sum(dqReport()[13:28,3:4])/sum(dqReport()[13:28,2]),
-          sum(dqReport()[29,3:4])/dqReport()[29,2])*100,1)
+        Category = c("Unaccompanied Children","Long-Term Stayers","Universal","Program-Specific","TOTAL"),
+        App_Rec = c(sum(dqReport()[4,2]),sum(dqReport()[5,2]),sum(dqReport()[6:13,2]),sum(dqReport()[14:29,2]),dqReport()[30,2]),
+        M = c(NA,NA,sum(dqReport()[6:13,3]),sum(dqReport()[14:29,3]),dqReport()[30,3]),
+        DKR = c(NA,NA,sum(dqReport()[6:13,4]),sum(dqReport()[14:29,4]),dqReport()[30,4]),
+        MDKR = round(c(NA,NA,sum(dqReport()[6:13,3:4])/sum(dqReport()[6:13,2]),
+          sum(dqReport()[14:29,3:4])/sum(dqReport()[14:29,2]),
+          sum(dqReport()[30,3:4])/dqReport()[30,2])*100,1)
       )
       names(dqReport_short) <- c("Data Element Category", "Applicable Records","Missing","DKR", "Missing + DKR (%)")
       return(dqReport_short)
@@ -574,7 +600,7 @@ shinyServer(function(input, output, session) {
           };
         }
       '),
-      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
+      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=30,
       aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
         list(bSearchable=FALSE),list(bSearchable=FALSE))
     )
@@ -634,12 +660,13 @@ shinyServer(function(input, output, session) {
           $("td:eq(7)", nRow).css("text-align", "center");
           $("td:eq(8)", nRow).css("text-align", "center");
           $("td:eq(9)", nRow).css("text-align", "center");
+          $("td:eq(10)", nRow).css("text-align", "center");
         }
       '),
       bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bInfo=0,iDisplayLength=500,
       aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
         list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
-        list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
+        list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE))
     )
   )
   
@@ -677,15 +704,15 @@ shinyServer(function(input, output, session) {
   elementsPlot <- reactive({
     progress <- Progress$new(session)
     progress$set(message="Creating chart",detail="Please wait a moment...")
-    Missing <- c(sum(dqReport()[5:12,"Missing"]),sum(dqReport()[13:16,"Missing"]),
-      sum(dqReport()[17:20,"Missing"]),sum(dqReport()[21:28,"Missing"]))/
-      c(sum(dqReport()[5:12,"Applicable Records"]),sum(dqReport()[13:16,"Applicable Records"]),
-      sum(dqReport()[17:20,"Applicable Records"]),sum(dqReport()[21:28,"Applicable Records"]))
+    Missing <- c(sum(dqReport()[6:13,"Missing"]),sum(dqReport()[14:17,"Missing"]),
+      sum(dqReport()[18:21,"Missing"]),sum(dqReport()[22:29,"Missing"]))/
+      c(sum(dqReport()[6:13,"Applicable Records"]),sum(dqReport()[14:17,"Applicable Records"]),
+      sum(dqReport()[18:21,"Applicable Records"]),sum(dqReport()[22:29,"Applicable Records"]))
       
-    DKR <- c(sum(dqReport()[5:12,"DKR"]),sum(dqReport()[13:16,"DKR"]),
-      sum(dqReport()[17:20,"DKR"]),sum(dqReport()[21:28,"DKR"]))/
-      c(sum(dqReport()[5:12,"Applicable Records"]),sum(dqReport()[13:16,"Applicable Records"]),
-      sum(dqReport()[17:20,"Applicable Records"]),sum(dqReport()[21:28,"Applicable Records"]))
+    DKR <- c(sum(dqReport()[6:13,"DKR"]),sum(dqReport()[14:17,"DKR"]),
+      sum(dqReport()[18:21,"DKR"]),sum(dqReport()[22:29,"DKR"]))/
+      c(sum(dqReport()[6:13,"Applicable Records"]),sum(dqReport()[14:17,"Applicable Records"]),
+      sum(dqReport()[18:21,"Applicable Records"]),sum(dqReport()[22:29,"Applicable Records"]))
   
     x <- data.frame(
       Element = seq(1:6),
