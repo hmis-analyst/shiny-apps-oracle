@@ -15,7 +15,7 @@ library(reshape2)
 library(stringr)
 
 libPath1 <- "~/HMIS Data Analyst/lib/"
-libPath2 <- "../lib/"
+libPath2 <- "../../lib/"
 
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)

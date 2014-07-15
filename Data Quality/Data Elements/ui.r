@@ -97,7 +97,7 @@ shinyUI(basicPage(
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
             p(' - Added "long-term stayers" data element'),
-            p(' - Updated Summary table to include unaccompanied children and long-term stayers')
+            p(' - Updated Summary table to include unaccompanied children and long-term stayers'),
             p(' - Minor bug fixes')
           )
         )
