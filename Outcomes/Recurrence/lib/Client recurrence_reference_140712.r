@@ -181,3 +181,7 @@ Exits3 <-
 write.csv(Exits2,file=paste("Exits",prog_type,"Apr13-Mar14_Rec.csv",sep="_"),na="",row.names=FALSE)
 
 }
+prog_type<-"RRH"
+query <- read.csv(paste("Exits",prog_type,"Apr13-Mar14_Rec.csv",sep="_"))
+summary(query)
+length(query[,1])

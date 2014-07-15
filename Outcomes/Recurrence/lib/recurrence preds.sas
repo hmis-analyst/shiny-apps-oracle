@@ -1,6 +1,6 @@
 libname jdata "Z:\Documents\Pathways\Pred Measures\Datasets";
 
-proc import datafile="Z:\Documents\Pathways\Pred Measures\Datasets\Exits_Prev_SFY2014.csv"
+proc import datafile="Z:\Documents\Pathways\Pred Measures\Datasets\Exits_RRH_Apr13-Mar14_Rec.csv"
   out=HMIS_data
   dbms=csv
   replace;
@@ -21,27 +21,29 @@ data HMIS_data_2;
   if Ben_Any_Entry = 1 and Ben_SNAP_Entry = 0 then Ben_Custom_Other = 1;
     else if Ben_Any_Entry ~=. then Ben_Custom_Other = 0;
   where HH_Head=1;
-  drop HH_Head HH_Members Age_at_Entry;
+  drop HH_Head HH_Members Age_at_Entry;* SN_SUBSTABUSE_ENTRY;
 run;
 
-proc mi data=HMIS_data_2 out=HMIS_data_3 MINIMUM=0 MAXIMUM=1 ROUND=1;
-	var DEM_RACE_NONWHITE--BEN_RENTTEMP_EXIT;
-run;
 
 /* Emergency shelter */
+ods rtf;
 proc logistic data=HMIS_data_2 plots=roc;
-  model o_DestType_P (event="1") = DEM_RACE_NONWHITE--BEN_RENTTEMP_EXIT Dem_Race_OtherMinority
+  model Recurrence (event="1") = PE_LENGTH_OF_STAY--BEN_RENTTEMP_EXIT 
     / selection=backward rsquare outroc=roc1;
   where z_Program_Type_Code = 1;
   output out = outdata_test;
 run;
+ods rtf close;
 
 ods rtf;
 proc logistic data=HMIS_data_2 plots=roc;
   model 
-    o_DestType_P (event="1") = Dem_Race_Nonwhite Dem_Ethnicity_Latino Dem_Gender_Male Dem_Vet HH_Has_Children HH_Not_Only_Adult CS_PNR_Homeless
-	CS_Prior_Homeless_Enroll SN_PhysDis_Entry SN_HIV_Entry Inc_SSDI_Entry Inc_VetDisPmt_Entry Inc_OtherSource_Entry Inc_EarnedIncome_Same 
-    Inc_Earned_Exit Inc_SSI_Exit Inc_SSDI_Exit Inc_OtherSource_Exit Ben_One_Exit
+    Recurrence (event="1") = PE_LENGTH_OF_STAY DEM_RACE_NONWHITE DEM_ETHNICITY_LATINO DEM_GENDER_MALE AGE_18TO24_ENTRY
+	HH_HAS_CHILDREN CS_PNR_HOMELESS CS_PRIOR_HOMELESS_ENROLL SN_PHYSDIS_ENTRY SN_CHRONHEALTH_ENTRY SN_SUBSTABUSE_ENTRY
+	SN_DV_ENTRY INC_ONE_ENTRY INC_MULTIPLE_ENTRY INC_EARNED_ENTRY INC_UNEMPINS_ENTRY INC_SSI_ENTRY INC_SSDI_ENTRY
+	INC_TANF_ENTRY INC_SS_ENTRY INC_OTHERSOURCE_ENTRY BEN_MULTIPLE_ENTRY BEN_MEDICAID_ENTRY BEN_OTHER_ENTRY
+	INC_EARNEDINCOME_INCREASE INC_UNEMPINS_EXIT INC_VETDISPMT_EXIT INC_CHILDSUPPORT_EXIT BEN_ONE_EXIT BEN_SNAP_EXIT
+	BEN_MEDICAID_EXIT BEN_VAMS_EXIT
     / lackfit;
   where z_Program_Type_Code = 1;
   output out = outdata_es l = Lower p = Predicted u = Upper RESDEV=resdev;
@@ -49,18 +51,18 @@ run;
 ods rtf close;
 
 /* Transitional housing */
+ods rtf;
 proc logistic data=HMIS_data_2 plots=roc;
-  model o_DestType_P (event="1") = DEM_RACE_NONWHITE--BEN_RENTTEMP_EXIT Dem_Race_OtherMinority
+  model Recurrence(event="1") = PE_LENGTH_OF_STAY--BEN_RENTTEMP_EXIT 
     / selection=backward rsquare outroc=roc1;
   where z_Program_Type_Code = 2;
 run;
+ods rtf close;
 
 ods rtf;
 proc logistic data=HMIS_data_2 plots=roc;
   model 
-    o_DestType_P (event="1") = Dem_Race_Otherminority Dem_Race_Black Dem_Gender_Male Dem_Vet HH_Has_Children SN_HIV_Entry SN_SubstAbuse_Entry 
-	Inc_Custom_Other Inc_Earned_Entry Inc_UnempIns_Entry Ben_Custom_Other Ben_One_Entry Ben_Multiple_Entry Ben_SNAP_Entry Inc_EarnedIncome_Same Inc_One_Exit 
-    Inc_Multiple_Exit Inc_UnempIns_Exit Inc_ChildSupport_Exit
+    Recurrence (event="1") = DEM_GENDER_MALE DEM_VET CS_PRIOR_HOMELESS_ENROLL INC_SSDI_ENTRY INC_EARNEDINCOME_INCREASE
     / lackfit;
   where z_Program_Type_Code = 2;
   output out = outdata_th l = Lower p = Predicted u = Upper RESDEV=resdev;
@@ -68,16 +70,18 @@ run;
 ods rtf close;
 
 /* Permanent supportive housing */
+ods rtf;
 proc logistic data=HMIS_data_2 plots=roc;
-  model o_DestType_P (event="1") = DEM_RACE_NONWHITE--BEN_RENTTEMP_EXIT Dem_Race_OtherMinority
+  model Recurrence (event="1") = PE_LENGTH_OF_STAY--BEN_RENTTEMP_EXIT 
     / selection=backward rsquare outroc=roc1;
   where z_Program_Type_Code = 3;
 run;
+ods rtf close;
 
 ods rtf;
 proc logistic data=HMIS_data_2 plots=roc;
   model 
-    o_DestType_P (event="1") = Dem_Gender_Male HH_Has_Children SN_DisabCond_Entry Inc_VetDisPmt_Entry Ben_Custom_Other Ben_SNAP_Entry
+    Recurrence (event="1") = DEM_RACE_BLACK DEM_GENDER_MALE BEN_MULTIPLE_ENTRY BEN_ANY_EXIT BEN_ONE_EXIT
     / lackfit;
   where z_Program_Type_Code = 3;
   output out = outdata_psh l = Lower p = Predicted u = Upper RESDEV=resdev;
@@ -86,7 +90,7 @@ ods rtf close;
 
 /* Rapid re-housing */
 proc logistic data=HMIS_data_2 plots=roc;
-  model o_DestType_P (event="1") = DEM_RACE_NONWHITE--BEN_RENTTEMP_EXIT
+  model Recurrence (event="1") = PE_LENGTH_OF_STAY--BEN_RENTTEMP_EXIT
     / selection=backward rsquare outroc=roc1;
   where z_Program_Type_Code = 14;
 run;
@@ -94,27 +98,9 @@ run;
 ods rtf;
 proc logistic data=HMIS_data_2 plots=roc;
   model 
-    o_DestType_P (event="1") = Dem_Vet SN_DevelDis_Entry Inc_SSI_Entry Inc_VetDisPmt_Entry Inc_ChildSupport_Entry Inc_Alimony_Entry
-    Ben_Other_Entry Inc_EarnedIncome_Increase Inc_One_Exit Inc_Multiple_Exit Ben_RentAssist_Exit
+    Recurrence (event="1") = DEM_VET BEN_TANFCC_ENTRY
     / lackfit;
   where z_Program_Type_Code = 14;
-  output out = outdata_rrh l = Lower p = Predicted u = Upper RESDEV=resdev;
-run;
-ods rtf close;
-
-/* Prevention */
-proc logistic data=HMIS_data_2 plots=roc;
-  model o_DestType_P (event="1") = DEM_RACE_NONWHITE--SN_DISABCOND_ENTRY INC_ANY_ENTRY--SN_DISABCOND_EXIT
-    / selection=backward rsquare outroc=roc1;
-  where z_Program_Type_Code = 13;
-run;
-
-ods rtf;
-proc logistic data=HMIS_data_2 plots=roc;
-  model 
-    o_DestType_P (event="1") = CS_Prior_Homeless_Enroll SN_DisabCond_Entry Inc_SSDI_Entry Ben_Multiple_Entry Ben_Medicaid_Entry
-    / lackfit;
-  where z_Program_Type_Code = 13;
   output out = outdata_rrh l = Lower p = Predicted u = Upper RESDEV=resdev;
 run;
 ods rtf close;
