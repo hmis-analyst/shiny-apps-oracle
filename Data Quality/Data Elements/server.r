@@ -526,7 +526,7 @@ shinyServer(function(input, output, session) {
     if (progCount2()==0) return()   
       dqReport_short <- data.frame(
         Category = c("Unaccompanied Children","Long-Term Stayers","Universal","Program-Specific","TOTAL"),
-        App_Rec = c(sum(dqReport()[4,2]),sum(dqReport()[5,2]),sum(dqReport()[6:13,2]),sum(dqReport()[14:29,2]),dqReport()[30,2]),
+        App_Rec = c(sum(dqReport()[3,2]),sum(dqReport()[5,2]),sum(dqReport()[6:13,2]),sum(dqReport()[14:29,2]),dqReport()[30,2]),
         M = c(NA,NA,sum(dqReport()[6:13,3]),sum(dqReport()[14:29,3]),dqReport()[30,3]),
         DKR = c(NA,NA,sum(dqReport()[6:13,4]),sum(dqReport()[14:29,4]),dqReport()[30,4]),
         MDKR = round(c(NA,NA,sum(dqReport()[6:13,3:4])/sum(dqReport()[6:13,2]),
