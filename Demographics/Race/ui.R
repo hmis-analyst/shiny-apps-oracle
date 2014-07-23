@@ -2,11 +2,11 @@
 library(shinyIncubator)
 library(RJDBC)
 
-libPath1 <- "C:/Users/Katherine.Arce/Documents"
-libPath2 <- "C:/Users/Katherine.Arce/Documents/R/RaceApp/"
+libPath1 <- "~/HMIS Data Analyst/lib/"
+libPath2 <- "../../lib/"
 
 # Establish JDBC connection using RJDBC
-source(paste(libPath1,"myconnectionkey.R",sep=""),local=TRUE)
+source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
 
 # Define UI for HMIS Race trends application
 shinyUI(basicPage(
@@ -32,14 +32,14 @@ shinyUI(basicPage(
                          ),
                          tabPanel("About",
                                   p(strong("Title:"),"Georgia HMIS Demographics - Race"),
-                                  p(strong("Version:"),"2.0.0"),
-                                  p(strong("Date:"),"21 April 2014"),
+                                  p(strong("Version:"),"1.0"),
+                                  p(strong("Date:"),"23 July 2014"),
                                   p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               race demographic trends among homeless service providers in the state of Georgia"),
-                                  p(strong("Bug reports:"),"Send to ",a(href="mailto:katherine.arce@dca.ga.gov","katherine.arce@dca.ga.gvo")),
+                                  p(strong("Bug reports:"),"Send to ",a(href="mailto:katherine.arce@dca.ga.gov","katherine.arce@dca.ga.gov")),
                                   p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demographics/Race","GitHub"))),
                                   p(strong('Changes since last version:')),
-                                  p(' - Upgraded to new page layout and data options')
+                                  p('None! This is the first version.')
                          )
              )
            )
