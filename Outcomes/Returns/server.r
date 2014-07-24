@@ -907,7 +907,7 @@ shinyServer(function(input, output, session) {
           $("td:eq(0)", nRow).css("text-align", "left");
           $("td:eq(1)", nRow).css("text-align", "right");
           $("td:eq(2)", nRow).css("text-align", "right");
-          $("td:eq(2)", nRow).css("text-align", "right");
+          $("td:eq(3)", nRow).css("text-align", "right");
         }
       '),
       bAutoWidth=FALSE,bPaginate=0,bLengthChange=0,bInfo=0,bSort=0,bFilter=0,
