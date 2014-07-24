@@ -18,13 +18,11 @@ prog_type <- switch(j,
   "14" = "RRH"
 )
 
-Exits <- read.csv(paste("HMIS Preds",prog_type,"Apr13-Mar14.csv",sep="_"),stringsAsFactors=FALSE)
+Exits <- read.csv(paste("Exits",prog_type,"Apr13-Mar14.csv",sep="_"),stringsAsFactors=FALSE)
 Exits2 <- 
-  if(j %in% c(1,2)) {
-    Exits[which((Exits$DEST_PERMANENT==1 | Exits$DEST_TEMPORARY==1) & Exits$HH_HEAD==1),]
-  } else {
-    Exits[which((Exits$DEST_PERMANENT==1 | Exits$DEST_TEMPORARY==1) & Exits$HH_HEAD==1 & Exits$PE_LENGTH_OF_STAY >=30),]
-  }
+  if(j %in% c(1,2,3,14)) {
+    Exits[which(Exits$DEST_PERMANENT==1 & Exits$HH_HEAD==1),]
+  } 
 
 # Get number of observations in Exits, store in "n"
 n <- length(Exits2[,1])

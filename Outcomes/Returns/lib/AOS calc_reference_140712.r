@@ -13,7 +13,7 @@ setwd("Z:/Documents/Pathways/Pred Measures/Datasets")
 #--------------
 # USER INPUT
 # Specify program type (ES, TH, RRH, PSH, or Prev)
-prog_type <- "Prev"
+prog_type <- "TH"
 #--------------
 
 # Read HMIS Predictors query into new object.
@@ -53,7 +53,7 @@ query$BEN_CUSTOM_OTHER <- ifelse(
 setwd("Z:/Documents/Pathways/Pred Measures/Datasets")
 
 # Import maximum likelihood estimates (MLE) for selected program type
-MLE <- read.csv(paste("Z:/GitHub/shiny-apps-oracle/Outcomes/Recurrence/lib/MLE",prog_type,"Apr13-Mar14_Rec.csv",sep="_"))
+MLE <- read.csv(paste("Z:/GitHub/shiny-apps-oracle/Outcomes/Returns/lib/MLE",prog_type,"Apr13-Mar14_Rec.csv",sep="_"))
 
 # Compute logits
 logit <- MLE[1,"Estimate"]+rowSums(MLE[2:length(MLE[,1]),"Estimate"]*query[,as.character(MLE[2:length(MLE[,1]),"Parameter"])])
@@ -65,7 +65,7 @@ likelihood <- exp(logit)/(exp(logit)+1)
 program_data <- data.frame(
   PROGRAM_KEY = query$Z_PROGRAM_KEY,
   likelihood = likelihood,
-  O_DESTTYPE_P = ifelse(is.na(query$O_DESTTYPE_P),0,query$O_DESTTYPE_P)
+  Returns = ifelse(is.na(query$Recurrence),0,query$Recurrence)
 )
 
 # Reduce program data to clients where a likelihood has been computed
@@ -73,7 +73,7 @@ program_data_valid <- program_data[which(!is.na(program_data$likelihood)),]
 
 # Aggregate the data into program-level statistics
 program_data_p <- ddply(program_data_valid,"PROGRAM_KEY",summarize,p=mean(likelihood))
-program_data_agg <- ddply(program_data,"PROGRAM_KEY",summarize,dest_perm=sum(O_DESTTYPE_P),n=length(PROGRAM_KEY))
+program_data_agg <- ddply(program_data,"PROGRAM_KEY",summarize,dest_perm=sum(Returns),n=length(PROGRAM_KEY))
 program_data_agg2 <- merge(program_data_p,program_data_agg,by="PROGRAM_KEY",all.x=TRUE,all.y=TRUE)
 
 #Calculate Adjusted Outcome Scores, based on phi statistic
@@ -109,6 +109,6 @@ hist(program_data_agg4[which(!is.na(program_data_agg4$decile)),"adjscore"])
 hist(program_data_agg4[which(!is.na(program_data_agg4$decile) & is.na(program_data_agg4$exclude)),"adjscore"])
 
 # Save program-level performance scores
-setwd("Z:/GitHub/shiny-apps-oracle/Recurrence/Destinations/lib")
-write.csv(program_data_agg4,file=paste("Prog data",prog_type,"Apr13-Mar14_Rec.csv",sep="_"),na="",row.names=FALSE)
+setwd("Z:/GitHub/shiny-apps-oracle/Outcomes/Returns/lib")
+write.csv(program_data_agg4,file=paste("Prog data",prog_type,"Apr13-Mar14.csv",sep="_"),na="",row.names=FALSE)
 
