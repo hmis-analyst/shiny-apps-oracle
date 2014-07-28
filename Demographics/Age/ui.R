@@ -16,7 +16,7 @@ shinyUI(basicPage(
     # SIDE PANEL
     column(4,
       wellPanel(
-        h3("Gender",align="center"),
+        h3("AGE",align="center"),
         # Tab panels within side panel
         tabsetPanel(selected="Data Options",
           tabPanel("Instructions",
@@ -31,11 +31,11 @@ shinyUI(basicPage(
             source(paste(libPath2,"DataOptions-Ora.ui.r",sep=""), local=TRUE)
           ),
           tabPanel("About",
-            p(strong("Title:"),"Georgia HMIS Demographics - Gender"),
-            p(strong("Version:"),"2.0.0"),
-            p(strong("Date:"),"21 April 2014"),
+            p(strong("Title:"),"Georgia HMIS Demographics - Age"),
+            p(strong("Version:"),"1.0"),
+            p(strong("Date:"),"23 July 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
-              gender demographic trends among homeless service providers in the state of Georgia"),
+              age demographic trends among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jsn.rgz@gmail.com","jsn.rgz@gmail.com")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demographics/Gender","GitHub"))),
             p(strong('Changes since last version:')),
