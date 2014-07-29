@@ -1,4 +1,4 @@
-# Load shiny, RODBC, and ggplot2 packages
+## Load shiny, RODBC, and ggplot2 packages
 library(shinyIncubator)
 library(RJDBC)
 library(ggplot2)
