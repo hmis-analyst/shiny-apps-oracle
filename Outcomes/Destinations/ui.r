@@ -1,3 +1,8 @@
+# APP: DESTINATIONS
+# FILE: ui.r
+#------------------------------------
+#------------------------------------
+
 #.libPaths("~/R/win-library/3.0")
 #install.packages("RJDBC",repos="http://cran.rstudio.com/")
 
@@ -9,8 +14,28 @@ library(shinyGridster)
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
 
+#######################################################################
+# Run preparatory code
+#----------------------------------------------------------------------
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
+# Create custom functions
+source(paste(libPath2,"customFunctions.r",sep=""),local=TRUE)
+#######################################################################
+
+#######################################################################
+# Specify what kind of app this by tweaking the indicators below.
+# This will affect the app's appearance and/or function.
+#----------------------------------------------------------------------
+# Does this app analyze exits only?
+exitsApp <- TRUE
+# Does this app calculate returns to homelessness?
+returnsApp <- TRUE
+# Does this app need an "APR" option?
+APR <- FALSE
+# c(group level=TRUE/FALSE, agency level=TRUE/FALSE, program level=TRUE/FALSE)
+passkey <- c(FALSE,FALSE,FALSE)
+#######################################################################
 
 source('dashwidgets.r')
 

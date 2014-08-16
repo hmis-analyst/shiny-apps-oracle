@@ -1,9 +1,14 @@
 div(
-  if(passkey==TRUE) {
+  if(sum(passkey)>0) {
     div(
-      br(),
       conditionalPanel(
-        condition = "input.reportLevel == 'Program'",
+        condition = paste(
+          "input.reportLevel == '",if(passkey[1]==TRUE) {"Group"},"' | ",
+          "input.reportLevel == '",if(passkey[2]==TRUE) {"Agency"},"' | ",
+          "input.reportLevel == '",if(passkey[3]==TRUE) {"Program"},"'",
+          sep=""
+        ),
+        br(),
         textInput("passkey","Enter passkey to access client data")
       )
     )

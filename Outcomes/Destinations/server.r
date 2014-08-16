@@ -17,7 +17,6 @@ library(plyr)
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
 libPath3 <- "lib/"
-l3 <- FALSE
 
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
@@ -103,7 +102,7 @@ shinyServer(function(input, output, session) {
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
     progress <- Progress$new(session)
-    progress$set(message="Calculating outcome score",detail="Please wait a moment...")
+    progress$set(message="Calculating degree of difficulty",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     isolate(
       # Query gender breakdown  based on user selections    
@@ -631,7 +630,7 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  ProgScore_prep <- reactive({
+  MLE <- reactive({
     input$update
     if(length(qResults_Enrolls()[which(qResults_Enrolls()$HH_HEAD==1),1])<10) {return("There was insufficient data to process this request. In order for a 
       score to be calculated, at least 10 households must have exited during the report period. Please extend the report period or choose another program.")}
@@ -645,7 +644,15 @@ shinyServer(function(input, output, session) {
       "RapidReHousing" = "RRH",
       "Prevention" = "Prev"
     ))
+    MLE <- read.csv(paste("MLE",prog_type,"SFY2014.csv",sep="_"))
+    setwd("../")
+    return(MLE)
+  })
+  ProgScore_prep <- reactive({
+    if(input$reportLevel!="Program") return()
     q <- qResults_Enrolls()
+    if(length(q[which(q$HH_HEAD==1),1])<10) {return("There was insufficient data to process this request. In order for a score to be calculated, at least 
+      10 households must have exited during the report period. Please extend the report period or choose another program.")}
     q$DEM_RACE_OTHERMINORITY <- NA
     q$DEM_RACE_OTHERMINORITY[which(q$DEM_RACE_NONWHITE==1 & q$DEM_RACE_BLACK==0)] <- 1
     q$DEM_RACE_OTHERMINORITY[which(is.na(q$DEM_RACE_OTHERMINORITY) & !is.na(q$DEM_RACE_NONWHITE))] <- 0
@@ -655,7 +662,7 @@ shinyServer(function(input, output, session) {
     q$BEN_CUSTOM_OTHER <- NA
     q$BEN_CUSTOM_OTHER[which(q$BEN_ANY_ENTRY==1 & q$BEN_SNAP_ENTRY==0)] <- 1
     q$BEN_CUSTOM_OTHER[which(is.na(q$BEN_CUSTOM_OTHER) & !is.na(q$BEN_ANY_ENTRY))] <- 0
-    MLE <- read.csv(paste("MLE",prog_type,"SFY2014.csv",sep="_"))
+    MLE <- MLE()
     logit <- MLE[1,"Estimate"]+rowSums(MLE[2:length(MLE[,1]),"Estimate"]*q[,as.character(MLE[2:length(MLE[,1]),"Parameter"])])
     program_data <- data.frame(
       PROGRAM_KEY = q$PROGRAM_KEY,
@@ -666,10 +673,10 @@ shinyServer(function(input, output, session) {
     program_data_p <- ddply(program_data_valid,"PROGRAM_KEY",summarize,p=mean(likelihood))
     program_data_agg <- ddply(program_data,"PROGRAM_KEY",summarize,dest_perm=sum(O_DESTTYPE_P),n=length(PROGRAM_KEY))
     p <- merge(program_data_p,program_data_agg,by="PROGRAM_KEY",all.x=TRUE,all.y=TRUE)
-    setwd("../")
     return(p)
   })
   ProgScore <- reactive({
+    if(input$reportLevel!="Program") return()
     if(length(ProgScore_prep())==1) return()
     p <- ProgScore_prep()
     phi <- chisq.test(x=c(p$dest_perm,p$n-p$dest_perm),p=c(p$p,1-p$p))$statistic[[1]]/p$n
@@ -705,6 +712,25 @@ shinyServer(function(input, output, session) {
   # TABLES
   #################################
   
+  output$predictors <- renderText({
+    if(input$reportLevel!="Program" | validSelect()==FALSE) return()
+    if(length(qResults_Enrolls()[which(qResults_Enrolls()$HH_HEAD==1),1])<10) {
+      return("A difficulty score could not be calculated due to insufficient data. In order for a degree of difficulty to be calculated, at least 10 households 
+        must have exited during the report period. Please extend the report period or choose another program.")
+    } else {
+      descriptions <- read.csv(paste(libPath2,"Variable descriptions.csv",sep=""),stringsAsFactors=FALSE)
+      predictors1 <- merge(MLE()[which(MLE()$Estimate<0),],descriptions[,c("Parameter","Pos")],by="Parameter")
+      predictors2 <- merge(MLE()[which(MLE()$Estimate>0),],descriptions[,c("Parameter","Neg")],by="Parameter")
+      names(predictors1) <- c("Variable","Effect","Description")
+      names(predictors2) <- c("Variable","Effect","Description")
+      predictors3 <- rbind(predictors1,predictors2)
+      predictors4 <- predictors3$Description
+      predictors4[length(predictors4)] <- paste("and",predictors4[length(predictors4)])
+      predictors5 <- paste(predictors4,collapse=", ")
+      predictors6 <- paste("This program's degree of difficulty increased because some of the following client characteristics were observed:  ",predictors5,".",sep="")
+      return(predictors6)
+    }
+  })
   output$summaryTable <- renderDataTable({
     qResults_short()
   },options=list(
@@ -715,7 +741,7 @@ shinyServer(function(input, output, session) {
           $("td:eq(2)", nRow).css("text-align", "right");
         }
       '),
-      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=29,
+      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,
         aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE))
     )
   )
@@ -743,6 +769,12 @@ shinyServer(function(input, output, session) {
     )
   )  
   
+  output$tooSmall <- renderText({
+    if(length(ProgScore_prep())==1) {
+      return("There were insufficient data to process this request. In order for a score to be calculated, at least 10 households must have exited during the report period. Please extend the report period or choose another program.")
+    }
+  })
+  
   
   #################################
   # PLOT
@@ -751,70 +783,51 @@ shinyServer(function(input, output, session) {
   # Create a reactive plot based on qResults_short()
   # Then make available for output into UI
   graphdata <- reactive({
-    if(progCount2()==0) return()
+    if(progCount2()==0 | validSelect()==FALSE) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     # Transform qResults_short into a format acceptable for plotting
-    graphdata <- qResults_short()[which(!(qResults_short()$DESTINATION %in% c("Unknown","TOTAL"))),]
-    graphdata$color <- c("firebrick2","darkorchid","royalblue2","green4")
+    graphdata <- data.frame(
+      Destination = qResults_short()[which(!(qResults_short()$DESTINATION %in% c("Unknown","TOTAL"))),1],
+      Value = qResults_short()[which(!(qResults_short()$DESTINATION %in% c("Unknown","TOTAL"))),2],
+      color = c("firebrick2","darkorchid","royalblue2","green4"),
+      cat_order = c("A","B","C","D")
+    )
     if(input$mdkr==FALSE) {
       UNKNOWN <- data.frame( 
-        DESTINATION = "Unknown",
-        LEAVERS = qResults_short()[1,2],
-        color = "gray45"
+        Destination = "Unknown",
+        Value = qResults_short()[1,2],
+        color = "gray45",
+        cat_order = "E"
       )
       graphdata <- rbind(UNKNOWN,graphdata)
     }
-    names(graphdata) <- c("Destination","Value","color")
     return(graphdata)
   })
-  destPlot <- reactive({
-    input$update 
-    graphdata()
-    #Graph reactivity is invalidated unless update button is pressed   
-    progress <- Progress$new(session)
-    progress$set(message="Creating chart",detail="Please wait a moment...")
-    isolate(
-      print(
-        # Begin plotting with ggplot()
-        # Define variables
-        ggplot(data=graphdata(), aes(x=factor(Destination,levels=Destination),y=Value)) +
-          # Define as bar chart
-          geom_bar(fill=graphdata()$color,color="black",stat="identity") + 
-          # Define bar coloers
-          scale_fill_manual(values=graphdata()$color,name="Destination") +
-          # Add text labels
-          geom_text(aes(label = paste(Value," (",round(100*Value/sum(Value),digits=1),"%)",sep=""),
-            size=10,vjust=-.5)) +
-          # Remove legend
-          theme(legend.position="none") +
-          # Define title
-            ggtitle(paste("Housing Outcomes for ", 
-              if(input$reportLevel!="Program") {
-                "Programs in "
-              }
-              else {
-                paste(input$agencySelect,": ",sep="")
-              },
-              finalSelect_Text(),"\nReport Period: ",
-              substr(beginSelect(),6,7),"/",
-              substr(beginSelect(),9,10),"/",
-              substr(beginSelect(),1,4)," - ",
-              substr(endSelect(),6,7),"/",
-              substr(endSelect(),9,10),"/",
-              substr(endSelect(),1,4),sep="")) + 
-          # Define axis labels
-            xlab("Destination at Program Exit") + 
-            ylab("Number of Clients Who Exited")
-      )
-    )
-    progress$close()
-  }) 
   output$destPlot <- renderPlot({
-    destPlot()  
-  })
+    if(validSelect()==FALSE) return()
+    print(
+      # Begin plotting with ggplot()
+      # Define variables
+      barchart <- ggplot(data=graphdata(), aes(x=cat_order,y=Value,fill=cat_order)) +
+        # Define as bar chart
+        geom_bar(color="black",stat="identity") + 
+        # Define bar colors
+        scale_fill_manual(values=as.character(graphdata()$color),name="Destination") +
+        # Add text labels
+        geom_text(aes(label = paste(Value," (",round(100*Value/sum(Value),digits=1),"%)",sep=""),
+          size=10,vjust=-.5)) +
+        # Remove legend
+        theme(legend.position="none") +
+        # Define title
+        ggtitle("Housing Outcomes") + 
+        # Define axis labels
+        xlab("Destination at Program Exit") + 
+        ylab("Number of Clients Who Exited")
+    )
+  }) 
   
   output$live_gauge <- reactive({
-    if(length(ProgScore_prep())==1) return()
+    if(length(ProgScore_prep())==1 | validSelect()==FALSE | input$reportLevel!="Program") return()
     if(length(grep("Destinations/lib",getwd()))==0) {
       setwd(libPath3)
     }
@@ -877,7 +890,9 @@ shinyServer(function(input, output, session) {
   output$mainPanel <- renderUI({
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
-    if (input$printable==TRUE) {
+    if(validSelect()==FALSE) {
+      return(p("Please make your selections in the side panel and click ANALYZE"))
+    } else if(input$printable==TRUE) {
       #Reactivity is invalidated unless update button is pressed
       isolate(div(
         h2("OUTCOMES REPORT",align="center"), br(),
@@ -891,48 +906,55 @@ shinyServer(function(input, output, session) {
         h4(paste("Report Period:  ",dateMod(beginSelect()),"-",dateMod(endSelect())),align="center"),
         div(align="center",plotOutput("destPlot"))
       ))
-    }
-    else {
+    } else {
       isolate(div(
         h4("Main Panel",align="center"),
         if(input$reportLevel!="Program") {
           tabsetPanel(
             tabPanel("Summary",
               div(downloadButton("downloadEnrolls","Download Enrollments"),align="right"),
-              dataTableOutput("summaryTable")
+              fluidRow(
+                column(5,
+                  dataTableOutput("summaryTable")
+                ),
+                column(6,offset=1,
+                  plotOutput("destPlot")  
+                )
+              )
             ),
             tabPanel("Programs",
               div(div(downloadButton("downloadProgs","Download Programs"),align="right"),br(),dataTableOutput("progsTable"))
-            ),
-            tabPanel("Plot",
-              plotOutput("destPlot")
             )
           )
-        }
-        else {
+        } else {
           tabsetPanel(
             tabPanel("Summary",
               div(downloadButton("downloadEnrolls","Download Enrollments"),align="right"),
+              div(gridster(width = 250, height = 250,
+                gridsterItem(col = 1, row = 2, sizex = 1, sizey = 1,
+                  justgageOutput("live_gauge", width=250, height=200)
+                )
+              ),align="center"),
+              br(),
               fluidRow(
-                column(6,
-                  gridster(width = 250, height = 250,
-                    gridsterItem(col = 1, row = 2, sizex = 1, sizey = 1,
-                      if(length(ProgScore_prep())>1) {justgageOutput("live_gauge", width=250, height=200)}
-                    )
-                  )
+                column(2),
+                column(8,
+                  textOutput("predictors")
                 ),
-                column(6,
+                column(2)
+              ),
+              br(),
+              fluidRow(
+                column(5,
                   dataTableOutput("summaryTable")
+                ),
+                column(6,offset=1,
+                  plotOutput("destPlot")  
                 )
               )
             ),
             tabPanel("Performance",
-              if(length(ProgScore_prep())==1) {
-                div(
-                  p(paste("There was insufficient data to process this request. In order for a score to be calculated, at least 10 households must have exited during the report period. Please extend the report period or choose another program.")),
-                  br()
-                )
-              },
+              textOutput("tooSmall"),
               fluidRow(
                 column(4,
                   wellPanel(
@@ -954,9 +976,6 @@ shinyServer(function(input, output, session) {
               br(),
               br(),
               plotOutput("outcomePlot")
-            ),
-            tabPanel("Plot",
-              plotOutput("destPlot")
             )
           )
         }

@@ -12,14 +12,31 @@ library(RJDBC)
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
 
+#######################################################################
+# Run preparatory code
+#----------------------------------------------------------------------
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
+# Create custom functions
+source(paste(libPath2,"customFunctions.r",sep=""),local=TRUE)
+#######################################################################
+
+#######################################################################
+# Specify what kind of app this by tweaking the indicators below.
+# This will affect the app's appearance and/or function.
+#----------------------------------------------------------------------
+# Does this app analyze exits only?
+exitsApp <- TRUE
+# Does this app calculate returns to homelessness?
+returnsApp <- TRUE
+# Does this app need an "APR" option?
+APR <- FALSE
+# c(group level=TRUE/FALSE, agency level=TRUE/FALSE, program level=TRUE/FALSE)
+passkey <- c(FALSE,FALSE,FALSE)
+#######################################################################
 
 source('dashwidgets.r')
 
-Sys.Year <- as.numeric(format(Sys.Date(),"%Y"))
-Sys.Month <- as.numeric(format(Sys.Date(),"%m"))
-Sys.Day <- as.numeric(format(Sys.Date()-1,"%d"))
 
 shinyUI(basicPage(
   progressInit(),
@@ -53,56 +70,8 @@ shinyUI(basicPage(
           ),
           tabPanel("Data Options",
             div(actionButton("update",strong("ANALYZE"),icon=icon("arrow-circle-right")),align="right"),
-            # Display date range input with default values
-            dateRangeInput("daterange","Analyze exits between...", format='mm/dd/yyyy',start="2012-07-01",end=paste(Sys.Year-1,Sys.Month,Sys.Day,sep="-"),
-              min=paste(Sys.Year-5,Sys.Month,Sys.Day,sep="-"),max=Sys.Date()),
-            br(),
-            # Display radio buttons with 3 defined report levels
-            radioButtons("reportLevel", "Report level",list("Group","Agency","Program"),selected="Program"),
-            br(),
-            # Display "Group Name" select list when user chooses "Group" report level
-            conditionalPanel(
-              # Define condition of this display
-              condition = "input.reportLevel == 'Group'",
-              # Query Pathways group names to populate select list
-              selectInput("groupSelect", "Group name",as.list(as.character(
-                dbGetQuery(connection,"
-                  SELECT unique Group_Name 
-                  FROM Community_Group_Information CGI
-                  JOIN Program_Community_Information PCI
-                    on CGI.Group_Key = PCI.Group_Key
-                  JOIN Program_Profile_Info PPI
-                    on PCI.Program_Key = PCI.Program_Key
-                  WHERE Program_Type_Code in (1,2,3,14)
-                  ORDER BY Group_Name"
-                )[[1]]
-              )))
-            ),
-            # Display "Agency Name" select list when user chooses "Agency" or "Program" report levels
-            conditionalPanel(
-              # Define condition of this display
-              condition = "input.reportLevel == 'Agency' | input.reportLevel == 'Program'",
-              # Query agency names to populate select list
-              selectInput("agencySelect", "Agency name",as.list(as.character(
-                dbGetQuery(connection,"
-                  SELECT unique Agency_Name 
-                  FROM Program_Profile_Info
-                  WHERE Program_Type_Code in (1,2,3,14)
-                  ORDER BY Agency_Name"
-                )[[1]]
-              )))
-            ),
-            # Display "Program Name" select list when user chooses "Program" report level
-            conditionalPanel(
-              # Define condition of this display
-              condition = "input.reportLevel == 'Program'",
-              # Call "programChoices" (reactive select list, defined in server.R)
-              # Display on sidebar
-              uiOutput("programChoices")
-            ),
-            br(),
-            uiOutput("programTypes"),
-            br(),br(),br(),br(),br(),br(), br()
+            # Import "Data Options" ui code
+            source(paste(libPath2,"DataOptions-Ora.ui.r",sep=""), local=TRUE)
           ),
           tabPanel("Viewing Options",
             checkboxInput("printable", "Printable", FALSE)

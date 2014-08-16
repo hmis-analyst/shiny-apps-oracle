@@ -21,8 +21,14 @@ library(stringr)
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
 
+#######################################################################
+# Run preparatory code
+#----------------------------------------------------------------------
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
+# Create custom functions
+source(paste(libPath2,"customFunctions.r",sep=""),local=TRUE)
+#######################################################################
 
 # Define server logic required to query/graph HMIS gender data
 shinyServer(function(input, output, session) {

@@ -5,6 +5,7 @@
 # Output file: Exits_[SFY].csv
 ##########################################################################
 
+setwd("~")
 # source("connectionkey.r")
 
 for(i in c(1,2,3,13,14)) {
@@ -430,7 +431,7 @@ query <- dbGetQuery(connection,paste("
     Program_Exit_Date <= to_date('6/30/2014','mm/dd/yyyy') and 
     Program_Type_Code in (",i,") and
     not Agency_Key in (2171,11128,82,15308,8908) and
-    not Program_Key in (6996)
+    not PPI.Program_Key in (6996)
 ",sep=""))
 
 

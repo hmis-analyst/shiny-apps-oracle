@@ -10,9 +10,9 @@
           FROM Program_Profile_Info PPI
           JOIN Program_Community_Information PCI
             on PPI.Program_Key = PCI.Program_Key
-          WHERE 
-            PPI.Agency_Name='",str_replace_all(input$agencySelect,"'","''"),"' and
-            PPI.Program_Name='",str_replace_all(input$programSelect,"'","''"),"' and 
+          WHERE ",
+            if(input$reportLevel %in% c("Agency","Program")) {paste("PPI.Agency_Name='",str_replace_all(input$agencySelect,"'","''"),"' and ",sep="")},
+            if(input$reportLevel == "Program") {paste("PPI.Program_Name='",str_replace_all(input$programSelect,"'","''"),"' and ",sep="")},"
             Group_Key in (",groupKeys,") "
         ,sep="")))==0
       ) {

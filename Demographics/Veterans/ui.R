@@ -1,3 +1,7 @@
+# APP: VETERANS
+#------------------------------------
+#------------------------------------
+
 # Load shiny and RODBC packages
 library(shinyIncubator)
 library(RJDBC)
@@ -5,8 +9,28 @@ library(RJDBC)
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
 
+#######################################################################
+# Run preparatory code
+#----------------------------------------------------------------------
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
+# Create custom functions
+source(paste(libPath2,"customFunctions.r",sep=""),local=TRUE)
+#######################################################################
+
+#######################################################################
+# Specify what kind of app this by tweaking the indicators below.
+# This will affect the app's appearance and/or function.
+#----------------------------------------------------------------------
+# Does this app analyze exits only?
+exitsApp <- FALSE
+# Does this app calculate returns to homelessness?
+returnsApp <- FALSE
+# Does this app need an "APR" option?
+APR <- FALSE
+# c(group level=TRUE/FALSE, agency level=TRUE/FALSE, program level=TRUE/FALSE)
+passkey <- c(FALSE,FALSE,FALSE)
+#######################################################################
 
 # Define UI for HMIS Veteran trends application
 shinyUI(basicPage(
@@ -32,14 +56,15 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Demographics - Veteran"),
-            p(strong("Version:"),"2.0.0"),
-            p(strong("Date:"),"28 Aug 2014"),
+            p(strong("Version:"),"1.1.0"),
+            p(strong("Date:"),"06 Aug 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               gender demographic trends among homeless service providers in the state of Georgia"),
-            p(strong("Bug reports:"),"Send to ",a(href="mailto:jsn.rgz@gmail.com","jsn.rgz@gmail.com")),
-            p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demographics/Veteran","GitHub"))),
+            p(strong("Bug reports:"),"Send to ",a(href="mailto:sara.demas@pcni.org","sara.demas@pcni.org")),
+            p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demographics/Veterans","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Upgraded to new page layout and data options')
+            p('- Data options panel simplified'),
+            p('- App files reorganized')
           )
         )
       )
@@ -47,7 +72,7 @@ shinyUI(basicPage(
     # MAIN PANEL
     column(8,
       # Call "Plot" (reactive plot, defined in server.R)
-      plotOutput("Plot")
+      uiOutput("mainPanel")
     )
   )
 ))

@@ -876,7 +876,7 @@ shinyServer(function(input, output, session) {
     }
   })
   #################################
-  # TABLES
+  # TABLES FOR RETURNS
   #################################
   #-------------------
   enrollTable <- reactive({
@@ -972,7 +972,7 @@ shinyServer(function(input, output, session) {
   
   
   #################################
-  # PLOT
+  # PLOTS FOR RETURNS
   #################################
   
   barData <- reactive({
@@ -1002,7 +1002,8 @@ shinyServer(function(input, output, session) {
       ggtitle("The Swiftness of Return") +
       ylab("% of exits") +
       xlab("Months until return")
-  )})
+    )
+  })
   
   output$live_gauge <- reactive({
     if(length(ProgScore_prep())==1) return()

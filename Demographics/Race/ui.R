@@ -1,12 +1,36 @@
-# Load shiny and RODBC packages
+# APP: RACE
+#------------------------------------
+#------------------------------------
+
+# Load packages
 library(shinyIncubator)
 library(RJDBC)
 
 libPath1 <- "~/HMIS Data Analyst/lib/"
 libPath2 <- "../../lib/"
 
+#######################################################################
+# Run preparatory code
+#----------------------------------------------------------------------
 # Establish JDBC connection using RJDBC
 source(paste(libPath1,"conn-Ora-Georgia_Base.r",sep=""),local=TRUE)
+# Create custom functions
+source(paste(libPath2,"customFunctions.r",sep=""),local=TRUE)
+#######################################################################
+
+#######################################################################
+# Specify what kind of app this by tweaking the indicators below.
+# This will affect the app's appearance and/or function.
+#----------------------------------------------------------------------
+# Does this app analyze exits only?
+exitsApp <- FALSE
+# Does this app calculate returns to homelessness?
+returnsApp <- FALSE
+# Does this app need an "APR" option?
+APR <- FALSE
+# c(group level=TRUE/FALSE, agency level=TRUE/FALSE, program level=TRUE/FALSE)
+passkey <- c(FALSE,FALSE,FALSE)
+#######################################################################
 
 # Define UI for HMIS Race trends application
 shinyUI(basicPage(
@@ -32,14 +56,15 @@ shinyUI(basicPage(
                          ),
                          tabPanel("About",
                                   p(strong("Title:"),"Georgia HMIS Demographics - Race"),
-                                  p(strong("Version:"),"1.0"),
-                                  p(strong("Date:"),"23 July 2014"),
+                                  p(strong("Version:"),"1.1.0"),
+                                  p(strong("Date:"),"06 August 2014"),
                                   p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               race demographic trends among homeless service providers in the state of Georgia"),
                                   p(strong("Bug reports:"),"Send to ",a(href="mailto:katherine.arce@dca.ga.gov","katherine.arce@dca.ga.gov")),
                                   p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Demographics/Race","GitHub"))),
                                   p(strong('Changes since last version:')),
-                                  p('None! This is the first version.')
+                                  p('- Data options panel simplified'),
+                                  p('- App files reorganized')
                          )
              )
            )
@@ -47,7 +72,7 @@ shinyUI(basicPage(
     # MAIN PANEL
     column(8,
            # Call "Plot" (reactive plot, defined in server.R)
-           plotOutput("Plot")
+           uiOutput("mainPanel")
     )
   )
 ))

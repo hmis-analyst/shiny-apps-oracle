@@ -29,8 +29,8 @@ exitsApp <- FALSE
 returnsApp <- FALSE
 # Does this app need an "APR" option?
 APR <- FALSE
-# Does this app give users access to client-level data?
-passkey <- FALSE
+# c(group level=TRUE/FALSE, agency level=TRUE/FALSE, program level=TRUE/FALSE)
+passkey <- c(FALSE,FALSE,FALSE)
 #######################################################################
 
 # Define UI for HMIS gender trends application

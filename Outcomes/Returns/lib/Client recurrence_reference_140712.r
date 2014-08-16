@@ -1,28 +1,16 @@
 ##########################################################################
-# Title: Testing heads of household for recurrence
+# Title: Testing heads of household for returns to homelessness
 # Programmer: Jason Rodriguez
-# Last updated: 7/12/2014
-# Output file: 
+# Last updated: 8/3/2014
+# Output file: Exits_[SFY]_Rec.csv
 ##########################################################################
 
 # source("connectionkey.r")
 
 setwd("Z:/Documents/Pathways/Pred Measures/Datasets")
 
-for (j in c("1","2","3","14")) {
 
-prog_type <- switch(j,
-  "1" = "ES",
-  "2" = "TH",
-  "3" = "PSH",
-  "14" = "RRH"
-)
-
-Exits <- read.csv(paste("Exits",prog_type,"Apr13-Mar14.csv",sep="_"),stringsAsFactors=FALSE)
-Exits2 <- 
-  if(j %in% c(1,2,3,14)) {
-    Exits[which(Exits$DEST_PERMANENT==1 & Exits$HH_HEAD==1),]
-  } 
+Exits2 <- read.csv(paste("Exits_SFY2014.csv",sep="_"),stringsAsFactors=FALSE)
 
 # Get number of observations in Exits, store in "n"
 n <- length(Exits2[,1])
@@ -103,21 +91,21 @@ for (i in 1:n) {
         # Establishing that a client has returned to homelessness, Rule R.2.d
         # "Recurrence takes place if a client exits to a homeless destination"
         # If this condition is met, Return_Date = Program_Exit_Date of the client's current enrollment
-        Exits2[i,"Return_Date"] <- if(Exits2[i,"DEST_CODE"] %in% c(1,2,16)) {
-          Exits2[i,"PE_PROGRAM_EXIT_DATE"]
-        } else {
-          # Otherwise, Return_Date = Next_Homeless
-          if(length(Temp[1,"NEXT_HOMELESS"])==0) {NA}
-          else {
-            max(Temp[1,"NEXT_HOMELESS"],Exits2[i,"PE_PROGRAM_EXIT_DATE"])
+        Exits2[i,"Return_Date"] <- 
+          if(length(Temp[1,"NEXT_HOMELESS"])==0) {
+            NA
+          } else {
+            max(Temp[1,"NEXT_HOMELESS"],Exits2[i,"PROGRAM_EXIT_DATE"])
           }
-        }
         # Create new Exits2 column called Next_Entry
         Exits2[i,"Next_Entry"] <- 
-          if(length(Temp[1,"NEXT_ENTRY"])==0) {NA}
-          else {Temp[1,"NEXT_ENTRY"]}
-        # Create new Exits2 column to identify a recurrent enrollment. It is set to 0 if Return_Date is null; else, it is set to 1.
-        Exits2[i,"Recurrence"] <- if(is.na(Exits2[i,"Return_Date"])) {1} else {0}
+          if(length(Temp[1,"NEXT_ENTRY"])==0) {
+            NA
+          } else {
+            Temp[1,"NEXT_ENTRY"]
+          }
+        # Create new Exits2 column to identify a return. It is set to 0 if Return_Date is null; else, it is set to 1.
+        Exits2[i,"Return"] <- if(is.na(Exits2[i,"Return_Date"])) {0} else {1}
         # Create new Exits2 column to identify the Agency Name associated with the next homeless enrollment.
         Exits2[i,"Next_Agency_Name"] <- if(length(Temp[,1])==0) {NA} else {Temp[1,"NEXT_AGENCY_NAME"]}
         # Create new Exits2 column to identify the Program Name associated with the next homeless enrollment.
@@ -142,44 +130,10 @@ remove(Temp)
 
 #-------------------
 # Rule R.3
-Exits2[which(Exits2$Days_Until_Return>90),"Recurrence"] <- 0
+Exits2[which(Exits2$Days_Until_Return>90 & Exits2$DEST_PERMANENT==1),"Return"] <- 0
 
-#-------------------
-# Rules L.1.b, L.2.b, and L.3.b
-# Exit3 removes enrollments with a "false exit" from homelessness
-# See "Rules for leaving homelessness" at https://github.com/hmis-analyst/shiny-apps-oracle/wiki/Homelessness-Recurrence
-Exits3 <-
-  Exits2[
-    which(
-      # Rule #1b
-      ( 
-        j %in% c(1,2) &
-        Exits2[,"DEST_PERMANENT"]==1 & 
-        Exits2[,"Days_Until_Return"]>=30
-      ) | 
-      # Rule #1c
-      (
-        i %in% c(1,2) &
-        (
-          Exits2[,"DEST_TEMPORARY"]==1 | 
-          Exits2[,"DEST_INSTITUTIONAL"]==1
-        ) & 
-        Exits2[,"Days_Until_Return"]>=90
-      ) |
-      # Rule #3
-      (
-        i %in% c(3,14) &
-        Exits2[,"PE_LENGTH_OF_STAY"] + Exits2[,"Days_Until_Return"] >= 30
-      ) |
-      # Rule #4
-      Exits2[,"Recurrence"]==0
-    )
-  ,]
+Exits2$Dest_Perm_90 <- ifelse(Exits2$DEST_PERMANENT==1 & Exits2$Return!=1,1,0)
 
-write.csv(Exits2,file=paste("Exits",prog_type,"Apr13-Mar14_Rec.csv",sep="_"),na="",row.names=FALSE)
+write.csv(Exits2,file="Exits_SFY2014_Rec.csv",na="",row.names=FALSE)
 
-}
-prog_type<-"RRH"
-query <- read.csv(paste("Exits",prog_type,"Apr13-Mar14_Rec.csv",sep="_"))
-summary(query)
-length(query[,1])
+

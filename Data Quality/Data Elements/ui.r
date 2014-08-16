@@ -35,7 +35,8 @@ returnsApp <- TRUE
 # Does this app need an "APR" option?
 APR <- TRUE
 # Does this app give users access to client-level data?
-passkey <- TRUE
+# c(group level=TRUE/FALSE, agency level=TRUE/FALSE, program level=TRUE/FALSE)
+passkey <- c(FALSE,FALSE,TRUE)
 #######################################################################
 
 shinyUI(basicPage(
@@ -65,15 +66,14 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Data Quality: Data Elements"),
-            p(strong("Version:"),"2.5.0"),
-            p(strong("Date:"),"3 August 2014"),
+            p(strong("Version:"),"2.5.1"),
+            p(strong("Date:"),"15 August 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Reorganized/simplified app code'),
-            p(' - Minor functional/aesthetic changes')
+            p(' - Minor functional changes')
           )
         )
       )
