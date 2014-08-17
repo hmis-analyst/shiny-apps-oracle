@@ -1,4 +1,4 @@
-  # APP: DATA ELEMENTS
+  # APP: DATA COMPLETENESS
   #------------------------------------
   #------------------------------------
   
@@ -24,7 +24,7 @@
     #Reactivity is invalidated unless update button is pressed
     isolate(
       dqQuery <- dbGetQuery(connection,paste("
-      SELECT unique PE.Program_Key,
+        SELECT unique PE.Program_Key,
           Agency_Name,
           Program_Name,
           count(unique PE.Program_Enrollment_Key) Enrolls,

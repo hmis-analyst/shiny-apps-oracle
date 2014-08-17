@@ -1,4 +1,4 @@
-# APP: DATA ELEMENTS
+# APP: DATA COMPLETENESS
 #------------------------------------
 #------------------------------------
 
@@ -34,7 +34,7 @@ source(paste(libPath2,"customFunctions.r",sep=""),local=TRUE)
 shinyServer(function(input, output, session) {
 
   source(paste(libPath2,"DataOptions-Ora.server.r",sep=""), local=TRUE)
-  source("mainQueries.r",local=TRUE)
+  source("data.r",local=TRUE)
   source("tables.r",local=TRUE)
   source("plots.r",local=TRUE)
   source("mainPanel.r",local=TRUE)

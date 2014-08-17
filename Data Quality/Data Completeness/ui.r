@@ -1,4 +1,4 @@
-# APP: DATA ELEMENTS
+# APP: DATA COMPLETENESS
 #------------------------------------
 #------------------------------------
 
@@ -46,7 +46,7 @@ shinyUI(basicPage(
   fluidRow(
     column(4,
       tags$form(class="well noprint",
-        h3("Data Elements",align="center"),
+        h3("Data Completeness",align="center"),
         tabsetPanel(selected="Data Options",
           tabPanel("Instructions",
             p('1. FIRST select your data options.'),
@@ -65,15 +65,15 @@ shinyUI(basicPage(
             checkboxInput("printable", "Printable", FALSE)
           ),
           tabPanel("About",
-            p(strong("Title:"),"Georgia HMIS Data Quality: Data Elements"),
-            p(strong("Version:"),"2.5.1"),
-            p(strong("Date:"),"15 August 2014"),
+            p(strong("Title:"),"Georgia HMIS Data Quality: Data Completeness"),
+            p(strong("Version:"),"2.5.2"),
+            p(strong("Date:"),"17 August 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data quality among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Minor functional changes')
+            p(' - Minor changes to aesthetics and code')
           )
         )
       )

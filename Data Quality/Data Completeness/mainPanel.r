@@ -1,4 +1,4 @@
-  # APP: DATA ELEMENTS
+  # APP: DATA COMPLETENESS
   #------------------------------------
   #------------------------------------
   
@@ -21,7 +21,7 @@
     } else if (input$printable==TRUE) {
       #Reactivity is invalidated unless update button is pressed
       isolate(mainPanel(
-        h2("DATA QUALITY REPORT",align="center"), br(),
+        h2("DATA COMPLETENESS REPORT",align="center"), br(),
         (if(input$reportLevel=="Group") 
         {h3(input$groupSelect,align="center")}),
         (if(input$reportLevel %in% c("Agency","Program")) 
