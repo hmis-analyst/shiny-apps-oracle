@@ -1,0 +1,38 @@
+Some brief notes on the shiny-apps-oracle repository and general programming practices
+Updated: 8/21/2014
+
+GENERAL
+- Apps are categorized as follows: data quality, outcomes, demographics, and demos.
+- The home directory ("shiny-apps-oracle/") contains both lib and doc folders. These are called "global" folders.
+- Each app folder (e.g., "Veterans") contains both lib and doc folders. Some contain a www folder. These are all called "local" folders.
+- Each app is segmented into different .R files. The file ui.R controls the user interface. The file server.R controls the background calculations.
+- Some apps include a file called page.html, which typically contains extra aesthetic specifications.
+- All apps contain the file doc/objects.xlsx, which contains descriptive information about objects created by the app.
+
+MORE ABOUT LIB FOLDERS
+- "lib" folders are libraries of files that are directly related to app functionality. They may be called by an app or they may be independent programs that produce data for an app.
+- "Global" lib files (e.g., Data Options.R) are those on which *multiple apps* depend. These are located in shiny-apps-oracle/lib.
+- "Local" lib files are those on which which a *specific* app depends. These are located in that app's lib folder.
+
+MORE ABOUT DOC FOLDERS
+- "doc" folders contain helpful documentation for programmers. However, apps do not require these files to run.
+
+MORE ABOUT WWW folders
+- "www" folders typically contain JavaScript files and/or other advanced app enhancements.
+
+MORE ABOUT UI.R FILES
+- "ui.R" files begin by running preparatory code. This establishes the JDBC connection and imports custom functions.
+- Next, ui.R files require that programmers specify certain Data Options tab panel characteristics. For example, the programmer could enable a passkey input box.
+- The Data Options panel is automatically created. However, programmers are expected to edit/customize the other tabs -- such as the "About" tab.
+
+MORE ABOUT SERVER.R FILES
+- "server.R" files begin by running preparatory code. This establishes the JDBC connection and imports custom functions.
+- Next, server.r files run various segments of server code. This server code is separated out into different .R files, which server.R calls.
+
+MORE ABOUT OBJECTS.XLSX FILES
+- Each app's doc folder contains an "objects.xlsx" file. This is a spreadsheet of various objects (including functions) created by the app.
+- This file is important because...
+  ... it helps secondary programmers understand how the app works.
+  ... it encourages the primary programmer to organize the app code more efficiently and clearly.
+  ... it prevents fatal errors caused when a programmer edits an object while being unaware of dependent objects.
+  ... it brings redundant or unused code to the programmer's attention.

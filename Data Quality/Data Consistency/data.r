@@ -1,4 +1,23 @@
   # APP: DATA CONSISTENCY
+  # File: data.r
+  #------------------------------------
+  # Global dependencies:
+  #   beginSelect()
+  #   endSelect()
+  #   finalSelect_Table()
+  #   input$reportLevel
+  #   finalSelect_Key()
+  #   programTypesSelect()
+  #   groupKeys()
+  # Local dependencies:
+  #   [None]
+  # Objects created:
+  #   joins
+  #   summaryData()
+  #   summaryData_2()
+  #   progsData()
+  #   progsData_2()
+  #   clientsData()
   #------------------------------------
   #------------------------------------
   
@@ -140,15 +159,14 @@
           on PE.Destination_Code = DC.Code_Key
     "
   
-  summaryQuery <- reactive({
-    if (progCount2()==0) return()
+  summaryData <- reactive({
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
     progress <- Progress$new(session)
     progress$set(message="Retrieving summary data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     isolate(
-      summaryQuery <- dbGetQuery(connection,paste("
+      summaryData <- dbGetQuery(connection,paste("
         SELECT 
           count(unique PE.Program_Enrollment_Key) Enrollments,
           /*
@@ -176,42 +194,41 @@
       ,sep=""))
     )
     progress$close()  
-    return(summaryQuery)
+    return(summaryData)
   })
   
-  summaryData <- reactive({
-    attach(summaryQuery())
-    summaryData <- data.frame(
-      ID = c(NA, 1:(length(summaryQuery())-1)),
+  summaryData_2 <- reactive({
+    attach(summaryData())
+    summaryData_2 <- data.frame(
+      ID = c(NA, 1:(length(summaryData())-1)),
       Data_Element = c("All enrollments","Missing head of household","More than one head of household",
         "Non-veteran receiving veteran income","Non-veteran receiving veteran benefits"),
       Applicable_Records = c(ENROLLMENTS, ENROLLMENTS, ENROLLMENTS, ENROLLMENTS, ENROLLMENTS),
       Hits = c(NA, HH_HEAD_MISSING, HH_HEAD_DUP, VETINCOME_NONVET, VETBENEFITS_NONVET)
     )
-    detach(summaryQuery())
+    detach(summaryData())
     grandSummaryRow <- data.frame(
       ID = NA,
       Data_Element = "TOTAL",
-      Applicable_Records = sum(summaryData$Applicable_Records),
-      Hits = sum(summaryData$Hits)
+      Applicable_Records = sum(summaryData_2[2:length(summaryData_2),"Applicable_Records"]),
+      Hits = sum(summaryData_2[2:length(summaryData_2),"Hits"])
     )
     # Tack summary row to end of summaryReport
-    summaryData <- rbind(summaryData, grandSummaryRow)
+    summaryData_2b <- rbind(summaryData_2, grandSummaryRow)
     # Create column for hit percentage
-    summaryData$Hit_Pct <- ifelse(is.na(summaryData$Hits),"",round(summaryData$Hits/summaryData$Applicable_Records*100,1))
-    return(summaryData)
+    summaryData_2b$Hit_Pct <- ifelse(is.na(summaryData_2b$Hits),"",round(summaryData_2b$Hits/summaryData_2b$Applicable_Records*100,1))
+    return(summaryData_2b)
   })
   
   
-  progsQuery <- reactive({
-    if (progCount2()==0) return()
+  progsData <- reactive({
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
     progress <- Progress$new(session)
     progress$set(message="Retrieving program data",detail="Please wait a moment...")
     #Reactivity is invalidated unless update button is pressed
     isolate(
-      progsQuery <- dbGetQuery(connection,paste("
+      progsData <- dbGetQuery(connection,paste("
         SELECT unique
           PE.Program_Key,
           Agency_Name,
@@ -244,14 +261,14 @@
       ,sep=""))
     )
     progress$close()  
-    return(progsQuery)
+    return(progsData)
   })
   
-  progsData <- reactive({
-    progsData <- progsQuery()
-    progsData$Hit_Pct <- round(progsData$HITS/progsData$APPLICABLE_RECORDS*100,1)
-    progsData <- progsData[,!(names(progsData)=="HITS")]
-    return(progsData)
+  progsData_2 <- reactive({
+    progsData_2 <- progsData()
+    progsData_2$Hit_Pct <- round(progsData_2$HITS/progsData_2$APPLICABLE_RECORDS*100,1)
+    progsData_2 <- progsData_2[,!(names(progsData_2)=="HITS")]
+    return(progsData_2)
   })
     
     
@@ -260,7 +277,7 @@
   #################################
   
   clientsData <- reactive({
-    if (progCount2()==0 | input$reportLevel != "Program" | is.null(groupKeys())) return()
+    if (is.null(groupKeys())) return()
     # Take a dependency on input$update by reading it. (Nothing is actually done with the value.)
     input$update
     progress <- Progress$new(session)

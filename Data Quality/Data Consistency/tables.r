@@ -1,4 +1,21 @@
   # APP: DATA CONSISTENCY
+  # File: tables.r
+  #------------------------------------
+  # Global dependencies:
+  #   input$printable
+  # Local dependencies:
+  #   summaryData()
+  #   summaryData_2()
+  #   progsData_2()
+  #   clientsData()
+  # Objects created:
+  #   table_options_1()
+  #   table_options_2
+  #   table_options_3
+  #   table_options_4
+  #   output$summaryTable
+  #   output$progsTable
+  #   output$clientsTable
   #------------------------------------
   #------------------------------------
   
@@ -28,7 +45,7 @@
           };
         }
       '),
-      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=length(summaryQuery())+1,
+      bAutoWidth=FALSE,bFilter=0,bPaginate=0,bLengthChange=0,bSort=0,bInfo=0,iDisplayLength=length(summaryData())+1,
       aoColumns=list(list(bSearchable=FALSE),list(bSearchable=FALSE),list(bSearchable=FALSE),
         list(bSearchable=FALSE),list(bSearchable=FALSE))
     )
@@ -103,7 +120,7 @@
   #################################
   
   output$summaryTable <- renderDataTable({
-    summaryTable <- summaryData()
+    summaryTable <- summaryData_2()
     names(summaryTable) <- c("ID","Data Element","Applicable Enrollment Records","Hits","Hits (%)")
     return(summaryTable)
   },
@@ -112,7 +129,7 @@
     
   
   output$progsTable <- renderDataTable({
-    progsTable <- progsData()
+    progsTable <- progsData_2()
     names(progsTable) <- c("Program Key", "Agency Name", "Program Name", "Enrollments", "Applicable Records", "Inconsistency Hits (%)")
     return(progsTable)
   },

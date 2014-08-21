@@ -1,4 +1,16 @@
   # APP: DATA CONSISTENCY
+  # File: tables.r
+  #------------------------------------
+  # Global dependencies:
+  #   [None]
+  # Local dependencies:
+  #   summaryData_2()
+  #   clientsData()
+  #   progsData_2()
+  # Objects created:
+  #   output$downloadSummary
+  #   output$downloadClients
+  #   output$downloadProgs
   #------------------------------------
   #------------------------------------
   
@@ -11,7 +23,7 @@
       paste('summary-', Sys.Date(), '.csv', sep='')
     },
     content = function(file) {
-      write.csv(summaryData(), file,na="",row.names=FALSE)
+      write.csv(summaryData_2(), file,na="",row.names=FALSE)
     }
   )
   
@@ -30,7 +42,7 @@
       paste('progs-', Sys.Date(), '.csv', sep='')
     },
     content = function(file) {
-      write.csv(progsData(), file,na="",row.names=FALSE)
+      write.csv(progsData_2(), file,na="",row.names=FALSE)
     }
   )
   

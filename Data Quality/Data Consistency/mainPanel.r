@@ -1,4 +1,29 @@
   # APP: DATA CONSISTENCY
+  # File: mainPanel.r
+  #------------------------------------
+  # Global dependencies:
+  #   input$reportLevel
+  #   validSelect()
+  #   input$printable
+  #   input$reportLevel
+  #   input$groupSelect
+  #   input$agencySelect
+  #   input$programSelect
+  #   beginSelect()
+  #   endSelect()
+  #   dateMod()
+  #   groupKeys()
+  # Local dependencies:
+  #   output$downloadSummary
+  #   output$summaryTable
+  #   output$text1
+  #   output$downloadClients
+  #   output$clientsTable
+  #   output$downloadProgs
+  #   output$progsTable
+  # Objects created:
+  #   output$text1
+  #   output$mainPanel
   #------------------------------------
   #------------------------------------
   
