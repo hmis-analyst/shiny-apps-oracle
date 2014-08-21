@@ -39,8 +39,8 @@ shinyServer(function(input, output, session) {
   # Run various server.r segments
   source(paste(libPath2,"DataOptions-Ora.server.r",sep=""), local=TRUE)
   source("errors.r",local=TRUE)
-  source("mainQueries.r",local=TRUE)
-  source("returnsAlgorithm.r",local=TRUE)
+  source("destinationsData.r",local=TRUE)
+  source("returnsData.r",local=TRUE)
   source("outcomeScore.r",local=TRUE)
   source("tables.r",local=TRUE)
   source("plots.r",local=TRUE)

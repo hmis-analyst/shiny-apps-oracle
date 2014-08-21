@@ -20,7 +20,7 @@ shinyServer(function(input, output, session) {
   
   # Import Data Options server code
   source(paste(libPath2,"DataOptions-Ora.server.r",sep=""), local=TRUE)
-  source("mainQueries.R",local=TRUE)
+  source("data.R",local=TRUE)
   source("plots.R",local=TRUE)
   source("mainPanel.R",local=TRUE)
 
