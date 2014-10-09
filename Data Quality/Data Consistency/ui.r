@@ -67,14 +67,15 @@ shinyUI(basicPage(
           ),
           tabPanel("About",
             p(strong("Title:"),"Georgia HMIS Data Quality: Data Consistency"),
-            p(strong("Version:"),"1.0.0"),
-            p(strong("Date:"),"17 August 2014"),
+            p(strong("Version:"),"1.1.0"),
+            p(strong("Date:"),"09 October 2014"),
             p(strong("Description:"),"Set of customizable reports and charts for the purpose of reporting
               and improving data consistency among homeless service providers in the state of Georgia"),
             p(strong("Bug reports:"),"Send to ",a(href="mailto:jason.m.rodriguez@vanderbilt.edu","jason.m.rodriguez@vanderbilt.edu")),
             p(div(strong("Source code:"),"View on",a(href="https://github.com/hmis-analyst/shiny-apps-oracle/tree/master/Data%20Quality","GitHub"))),
             p(strong('Changes since last version:')),
-            p(' - Nothing; this is the first version')
+            p(' - Added rows for "adults" and "leavers" to Summary table'),
+            p(' - Minor bug fixes')
           )
         )
       )

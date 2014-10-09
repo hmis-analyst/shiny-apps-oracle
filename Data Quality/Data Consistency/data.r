@@ -169,6 +169,8 @@
       summaryData <- dbGetQuery(connection,paste("
         SELECT 
           count(unique PE.Program_Enrollment_Key) Enrollments,
+          count(unique PE.Program_Exit_Date) Leavers,
+          count(unique case when (PE.Program_Entry_Date - Date_of_Birth)/365.25 < 18 then PE.Program_Enrollment_Key end) Adults,
           /*
           /* DATA INCONSISTENCIES */
             /* Missing head of household (applicable enrollments: all) */
@@ -200,18 +202,18 @@
   summaryData_2 <- reactive({
     attach(summaryData())
     summaryData_2 <- data.frame(
-      ID = c(NA, 1:(length(summaryData())-1)),
-      Data_Element = c("All enrollments","Missing head of household","More than one head of household",
+      ID = c(NA,NA,NA, 1:(length(summaryData())-3)),
+      Data_Element = c("All enrollments","All leavers","All adults","Missing head of household","More than one head of household",
         "Non-veteran receiving veteran income","Non-veteran receiving veteran benefits"),
-      Applicable_Records = c(ENROLLMENTS, ENROLLMENTS, ENROLLMENTS, ENROLLMENTS, ENROLLMENTS),
-      Hits = c(NA, HH_HEAD_MISSING, HH_HEAD_DUP, VETINCOME_NONVET, VETBENEFITS_NONVET)
+      Applicable_Records = c(ENROLLMENTS, LEAVERS, ADULTS, ENROLLMENTS, ENROLLMENTS, ENROLLMENTS, ENROLLMENTS),
+      Hits = c(NA,NA,NA, HH_HEAD_MISSING, HH_HEAD_DUP, VETINCOME_NONVET, VETBENEFITS_NONVET)
     )
     detach(summaryData())
     grandSummaryRow <- data.frame(
       ID = NA,
       Data_Element = "TOTAL",
-      Applicable_Records = sum(summaryData_2[2:length(summaryData_2),"Applicable_Records"]),
-      Hits = sum(summaryData_2[2:length(summaryData_2),"Hits"])
+      Applicable_Records = sum(summaryData_2[4:length(summaryData_2[,1]),"Applicable_Records"]),
+      Hits = sum(summaryData_2[4:length(summaryData_2[,1]),"Hits"])
     )
     # Tack summary row to end of summaryReport
     summaryData_2b <- rbind(summaryData_2, grandSummaryRow)
